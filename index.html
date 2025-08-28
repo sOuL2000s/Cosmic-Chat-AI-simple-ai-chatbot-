@@ -76,8 +76,8 @@
         body.dark #chat-history { background-color: var(--bg-color-dark); } /* Make chat history full black */
         body.dark #chat-input { background-color: #1a0f2b; color: var(--text-color-dark); border-color: #372a4d; }
         body.dark #chat-input::placeholder { color: #8e889a; }
-        body.dark #model-select { background-color: #1a0f2b; color: var(--text-color-dark); border-color: #372a4d; }
-        body.dark #model-select option { background-color: #1a0f2b; color: var(--text-color-dark); }
+        body.dark #model-select, body.dark #temperature-select { background-color: #1a0f2b; color: var(--text-color-dark); border-color: #372a4d; }
+        body.dark #model-select option, body.dark #temperature-select option { background-color: #1a0f2b; color: var(--text-color-dark); }
 
 
         body.dark .bg-violet-600 { background-color: var(--accent-primary); } /* Changed to violet */
@@ -125,6 +125,7 @@
             overflow-x: auto;
             margin-top: 1em;
             margin-bottom: 1em;
+            position: relative; /* Needed for absolute positioning of copy button */
         }
         .markdown-content pre code {
             background-color: transparent;
@@ -224,6 +225,8 @@
             border-bottom-left-radius: 0.5rem; /* 8px */
             border: 1px solid rgba(14, 165, 233, 0.2);
             box-shadow: 0 0 10px rgba(14, 165, 233, 0.1);
+            position: relative; /* Needed for action buttons positioning */
+            padding-bottom: 3.5rem; /* Space for action buttons */
         }
         body.light .chat-message.user {
             background-color: #e0f2fe; /* Light blue */
@@ -305,13 +308,94 @@
             #chat-input {
                 min-width: 0; /* Allow flex item to shrink below its content size */
             }
-            .model-selector-group {
-                flex-direction: column; /* Stack model selector and label on small screens */
+            .model-selector-group, .temperature-selector-group {
+                flex-direction: column; /* Stack selector and label on small screens */
                 align-items: center;
             }
-            .model-selector-group label {
+            .model-selector-group label, .temperature-selector-group label {
                 margin-bottom: 0.5rem;
             }
+            .header-controls-group { /* Group for model, temp, dark mode */
+                flex-direction: column;
+                align-items: center;
+                width: 100%;
+            }
+            .header-controls-group > div {
+                width: 100%;
+                justify-content: center;
+            }
+            .header-controls-group > div:not(:last-child) {
+                margin-bottom: 1rem;
+            }
+        }
+
+        /* Styles for AI message action buttons (copy, feedback) */
+        .ai-actions {
+            position: absolute;
+            bottom: 0.75rem; /* 12px from bottom */
+            right: 1rem; /* 16px from right */
+            display: flex;
+            gap: 0.5rem;
+            z-index: 10;
+        }
+
+        .ai-actions button {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 0.4rem 0.6rem;
+            border-radius: 9999px;
+            color: #d1d5db;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            transition: all 0.2s ease;
+        }
+        .ai-actions button:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            transform: translateY(-1px);
+        }
+        .ai-actions button.liked {
+            background-color: var(--accent-tertiary);
+            border-color: var(--accent-tertiary);
+            color: white;
+        }
+        .ai-actions button.disliked {
+            background-color: var(--accent-error);
+            border-color: var(--accent-error);
+            color: white;
+        }
+
+        /* Style for the "Copy Code" button within <pre> blocks */
+        .code-copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background-color: rgba(255, 255, 255, 0.15);
+            color: #d1d5db;
+            padding: 0.25rem 0.6rem;
+            border-radius: 0.3rem;
+            font-size: 0.8rem;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            z-index: 20; /* Ensure it's above code content */
+        }
+        .code-copy-btn:hover {
+            background-color: rgba(255, 255, 255, 0.25);
+            color: white;
+        }
+        body.light .code-copy-btn {
+            background-color: rgba(0, 0, 0, 0.08);
+            color: #374151;
+        }
+        body.light .code-copy-btn:hover {
+            background-color: rgba(0, 0, 0, 0.15);
+            color: #1f2937;
         }
     </style>
 </head>
@@ -320,7 +404,7 @@
     <!-- Main container for the full-screen chatbot -->
     <div class="main-chat-container max-w-4xl mx-auto w-full bg-transparent">
             
-        <!-- Header Section with Title, Dark Mode Toggle, and Model Selector -->
+        <!-- Header Section with Title, Dark Mode Toggle, Model Selector, and Temperature Selector -->
         <header class="header-content flex flex-col md:flex-row justify-between items-center px-4 md:px-6 py-4 border-b border-gray-700 dark:border-gray-800 bg-gray-50 dark:bg-gray-800 rounded-t-xl mb-4">
             <div class="text-center md:text-left mb-4 md:mb-0">
                 <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-gray-50 tracking-tight flex items-center justify-center md:justify-start">
@@ -331,21 +415,36 @@
                     Your intelligent companion across the digital cosmos.
                 </p>
             </div>
-            <div class="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4 mt-4 md:mt-0">
+            <!-- Group for all controls: Model, Temperature, Dark Mode -->
+            <div class="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4 mt-4 md:mt-0 header-controls-group">
                 <!-- Model Selection -->
                 <div class="flex items-center model-selector-group">
                     <label for="model-select" class="mr-2 text-gray-500 text-sm">Model:</label>
-                    <select id="model-select" class="p-2 rounded-md border border-gray-600 dark:bg-gray-900 dark:border-gray-700 dark:text-white text-sm focus:ring-violet-500 focus:border-violet-500">
+                    <select id="model-select" class="p-2 rounded-md border border-gray-600 dark:bg-gray-900 dark:border-gray-700 dark:text-white text-sm focus:ring-violet-500 focus:border-violet-500" aria-label="Select AI Model">
                         <option value="gemini-2.5-flash">gemini-2.5-flash</option>
                         <option value="gemini-2.5-flash-preview-05-20" selected>gemini-2.5-flash-preview-05-20</option>
                         <option value="gemini-2.5-pro">gemini-2.5-pro</option>
                     </select>
                 </div>
 
+                <!-- NEW: Creativity Temperature Selection -->
+                <div class="flex items-center temperature-selector-group">
+                    <label for="temperature-select" class="mr-2 text-gray-500 text-sm">Creativity:</label>
+                    <select id="temperature-select" class="p-2 rounded-md border border-gray-600 dark:bg-gray-900 dark:border-gray-700 dark:text-white text-sm focus:ring-violet-500 focus:border-violet-500" aria-label="Select AI creativity temperature">
+                        <option value="0.0">0.0 (Factual)</option>
+                        <option value="0.3">0.3</option>
+                        <option value="0.5" selected>0.5 (Default)</option>
+                        <option value="0.7">0.7</option>
+                        <option value="0.8">0.8</option>
+                        <option value="0.9">0.9</option>
+                        <option value="1.0">1.0 (Creative)</option>
+                    </select>
+                </div>
+
                 <!-- Dark Mode Toggle -->
                 <div class="flex items-center space-x-2">
                     <span class="text-gray-500 text-sm">Light</span>
-                    <label class="switch relative inline-block w-14 h-8">
+                    <label class="switch relative inline-block w-14 h-8" aria-label="Toggle dark mode">
                         <input type="checkbox" id="dark-mode-toggle" class="opacity-0 w-0 h-0">
                         <span class="slider absolute cursor-pointer top-0 left-0 right-0 bottom-0 rounded-full before:absolute before:content-[''] before:h-6 before:w-6 before:left-1 before:bottom-1 before:rounded-full"></span>
                     </label>
@@ -370,11 +469,11 @@
                 <!-- Attachments previews will be dynamically added here -->
             </div>
             <div class="flex gap-2">
-                <input type="text" id="chat-input" class="flex-1 p-3 rounded-full border border-gray-600 focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-colors shadow-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white" placeholder="Ask your cosmic question...">
-                <label for="chat-file-upload" class="flex items-center justify-center w-12 h-12 rounded-full bg-gray-700 text-gray-200 shadow-lg hover:bg-gray-600 cursor-pointer transition-all duration-300 flex-shrink-0">
+                <input type="text" id="chat-input" class="flex-1 p-3 rounded-full border border-gray-600 focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-colors shadow-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white" placeholder="Ask your cosmic question..." aria-label="Chat input field">
+                <label for="chat-file-upload" class="flex items-center justify-center w-12 h-12 rounded-full bg-gray-700 text-gray-200 shadow-lg hover:bg-gray-600 cursor-pointer transition-all duration-300 flex-shrink-0" aria-label="Attach files">
                     <i data-lucide="paperclip" class="w-5 h-5"></i>
                 </label>
-                <input type="file" id="chat-file-upload" accept="*" class="hidden" multiple>
+                <input type="file" id="chat-file-upload" accept="*" class="hidden" multiple aria-label="File upload input">
                 <button id="send-chat-btn" aria-label="Send Message" class="flex items-center justify-center w-12 h-12 rounded-full bg-violet-600 text-white shadow-lg hover:bg-violet-700 focus:outline-none focus:ring-4 focus:ring-violet-300 transition-all duration-300 disabled:bg-violet-400 disabled:cursor-not-allowed glow-button flex-shrink-0" style="--accent-primary: var(--accent-primary);">
                     <i data-lucide="send" class="w-5 h-5"></i>
                 </button>
@@ -389,7 +488,7 @@
     </footer>
 
     <!-- Temporary message for clipboard copy -->
-    <div id="copy-message">Text copied to clipboard!</div>
+    <div id="copy-message" aria-live="polite">Text copied to clipboard!</div>
 
 
     <script type="text/javascript">
@@ -411,7 +510,7 @@
         const chatHistoryDiv = document.getElementById('chat-history');
         const chatInput = document.getElementById('chat-input');
         const sendChatBtn = document.getElementById('send-chat-btn');
-        const chatFileUpload = document.getElementById('chat-file-upload'); // Changed ID for clarity
+        const chatFileUpload = document.getElementById('chat-file-upload');
         const chatAttachmentsPreviewContainer = document.getElementById('chat-attachments-preview-container');
         
         // Dark Mode elements
@@ -419,6 +518,9 @@
         
         // Model Selection elements
         const modelSelect = document.getElementById('model-select');
+
+        // NEW: Temperature Selection elements
+        const temperatureSelect = document.getElementById('temperature-select');
 
         // Copy message element
         const copyMessage = document.getElementById('copy-message');
@@ -434,6 +536,8 @@
         
         // Initialize GEMINI_MODEL from the default selected option in the HTML
         let GEMINI_MODEL = modelSelect.value; 
+        // NEW: Initialize GEMINI_TEMPERATURE from the default selected option in the HTML
+        let GEMINI_TEMPERATURE = parseFloat(temperatureSelect.value);
 
         if (GEMINI_API_KEY === "" || !GEMINI_API_KEY) {
             console.error("API Key is not set. Please replace 'AIzaSyCzx6ReMk8ohPJcCjGwHHzu7SvFccJqAbA' with your actual API key.");
@@ -449,6 +553,7 @@
             chatInput.disabled = true;
             chatFileUpload.disabled = true;
             modelSelect.disabled = true; // Disable model selection if API key is bad
+            temperatureSelect.disabled = true; // NEW: Disable temperature selection too
         }
 
         // Dark Mode Initialization and Listener
@@ -490,6 +595,12 @@
             // createIcons();
         });
 
+        // NEW: Event listener for temperature selection change
+        temperatureSelect.addEventListener('change', (event) => {
+            GEMINI_TEMPERATURE = parseFloat(event.target.value);
+            console.log(`Gemini creativity temperature changed to: ${GEMINI_TEMPERATURE}`);
+        });
+
 
         // Function to convert a file to a Base64 string and return its MIME type and data
         const fileToBase64 = (file) => {
@@ -526,9 +637,27 @@
             chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
             createIcons(); // Ensure error icon is rendered
         }
+
+        // Helper to copy text to clipboard
+        function copyToClipboard(text, element) {
+            navigator.clipboard.writeText(text).then(() => {
+                showCopyMessage();
+                if (element) {
+                    const originalText = element.innerHTML;
+                    element.innerHTML = `<i data-lucide="check" class="w-4 h-4"></i> Copied!`;
+                    createIcons();
+                    setTimeout(() => {
+                        element.innerHTML = originalText;
+                        createIcons();
+                    }, 2000);
+                }
+            }).catch(err => {
+                console.error('Failed to copy text: ', err);
+            });
+        }
         
         // Function to append a message to the chat history
-        function appendChatMessage(role, text, attachments = []) { // attachments is now an array of {mimeType, data, name}
+        function appendChatMessage(role, text, attachments = [], messageId = null) {
             // Remove the initial prompt if it exists
             const initialPromptDiv = chatHistoryDiv.querySelector('.initial-message');
             if (initialPromptDiv) {
@@ -559,8 +688,24 @@
                     });
                     contentHTML += `</div>`;
                 }
-            } else { // AI message
-                contentHTML = marked.parse(text);
+            } else { // AI message (as a "card")
+                const parsedMarkdown = marked.parse(text);
+                contentHTML = `
+                    <div class="markdown-content">
+                        ${parsedMarkdown}
+                    </div>
+                    <div class="ai-actions mt-2">
+                        <button class="copy-ai-response-btn" aria-label="Copy AI response">
+                            <i data-lucide="copy" class="w-4 h-4"></i> Copy
+                        </button>
+                        <button class="feedback-btn like-btn" data-message-id="${messageId}" data-rating="like" aria-label="Like this response">
+                            <i data-lucide="thumbs-up" class="w-4 h-4"></i>
+                        </button>
+                        <button class="feedback-btn dislike-btn" data-message-id="${messageId}" data-rating="dislike" aria-label="Dislike this response">
+                            <i data-lucide="thumbs-down" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                `;
             }
             
             messageDiv.innerHTML = contentHTML;
@@ -575,6 +720,53 @@
             
             // Call createIcons() after adding new content to the chat history
             createIcons();
+
+            // Add event listeners for new AI message actions
+            if (role === 'ai') {
+                const copyBtn = messageDiv.querySelector('.copy-ai-response-btn');
+                if (copyBtn) {
+                    copyBtn.addEventListener('click', () => copyToClipboard(text, copyBtn));
+                }
+
+                messageDiv.querySelectorAll('.feedback-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const targetBtn = e.currentTarget;
+                        const rating = targetBtn.dataset.rating;
+                        const messageId = targetBtn.dataset.messageId;
+
+                        // Toggle active state
+                        targetBtn.classList.toggle(`${rating}d`);
+                        
+                        // Ensure only one feedback button is active at a time
+                        messageDiv.querySelectorAll('.feedback-btn').forEach(otherBtn => {
+                            if (otherBtn !== targetBtn) {
+                                otherBtn.classList.remove('liked', 'disliked');
+                            }
+                        });
+
+                        // For a real app, you'd send this feedback to a backend:
+                        console.log(`Feedback for message ${messageId}: ${rating}`);
+                        // sendFeedback(messageId, rating);
+                    });
+                });
+
+                // Add "Copy Code" buttons to pre blocks
+                messageDiv.querySelectorAll('.markdown-content pre').forEach((preBlock) => {
+                    const codeBlock = preBlock.querySelector('code');
+                    if (codeBlock) {
+                        const copyCodeBtn = document.createElement('button');
+                        copyCodeBtn.classList.add('code-copy-btn');
+                        copyCodeBtn.innerHTML = `<i data-lucide="copy" class="w-4 h-4"></i> Copy Code`;
+                        copyCodeBtn.setAttribute('aria-label', 'Copy code to clipboard');
+                        preBlock.appendChild(copyCodeBtn);
+                        createIcons(); // Re-render icons after adding button
+
+                        copyCodeBtn.addEventListener('click', () => {
+                            copyToClipboard(codeBlock.textContent, copyCodeBtn);
+                        });
+                    }
+                });
+            }
         }
 
         // Event listener for chat file upload input
@@ -615,7 +807,7 @@
                     attachmentDiv.innerHTML = `
                         ${previewContent}
                         <span class="truncate max-w-[100px]">${attachment.name}</span>
-                        <button class="remove-attachment-btn text-gray-400 hover:text-white transition-colors p-1 rounded-full hover:bg-gray-600 ml-1">
+                        <button class="remove-attachment-btn text-gray-400 hover:text-white transition-colors p-1 rounded-full hover:bg-gray-600 ml-1" aria-label="Remove ${attachment.name}">
                             <i data-lucide="x" class="w-4 h-4"></i>
                         </button>
                     `;
@@ -654,7 +846,8 @@
             if (userMessage) {
                 userParts.push({ text: userMessage });
             }
-            chatAttachments.forEach(attachment => {
+            const currentAttachments = [...chatAttachments]; // Capture current attachments
+            currentAttachments.forEach(attachment => {
                 userParts.push({
                     inlineData: {
                         mimeType: attachment.mimeType,
@@ -665,7 +858,7 @@
 
             // Append user message and attachments to chat history and UI
             chatHistory.push({ role: 'user', parts: userParts });
-            appendChatMessage('user', userMessage, chatAttachments);
+            appendChatMessage('user', userMessage, currentAttachments); // Pass captured attachments
             
             // Clear input and attachment after sending
             chatInput.value = '';
@@ -677,6 +870,7 @@
             chatInput.disabled = true;
             chatFileUpload.disabled = true;
             modelSelect.disabled = true; // Disable model selection during API call
+            temperatureSelect.disabled = true; // NEW: Disable temperature selection
             
             // Show loading indicator
             const loadingMessage = document.createElement('div');
@@ -697,13 +891,18 @@
                 // Call API with full chat history
                 const payload = {
                     contents: chatHistory,
+                    // NEW: Add generationConfig with temperature
+                    generationConfig: {
+                        temperature: GEMINI_TEMPERATURE,
+                    },
                 };
                 
                 const responseText = await callGeminiAPI(payload);
                 
                 // Append AI response to chat history and UI
                 chatHistory.push({ role: 'model', parts: [{ text: responseText }] });
-                appendChatMessage('ai', responseText);
+                // Pass a unique ID for the message for feedback (in a real app, this would be from backend)
+                appendChatMessage('ai', responseText, [], `msg-${chatHistory.length}`); 
                 
             } catch (error) {
                 console.error('Chat API call failed:', error);
@@ -713,6 +912,7 @@
                 chatInput.disabled = false;
                 chatFileUpload.disabled = false;
                 modelSelect.disabled = false; // Re-enable model selection
+                temperatureSelect.disabled = false; // NEW: Re-enable temperature selection
                 const loadingDiv = document.getElementById('chat-loading');
                 if (loadingDiv) {
                     loadingDiv.remove();

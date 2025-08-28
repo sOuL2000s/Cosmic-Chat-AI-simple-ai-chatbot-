@@ -3,50 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dream11 Team Predictor</title>
+    <title>Cosmic Chatbot AI</title>
     <!-- Tailwind CSS CDN for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Marked.js CDN for Markdown parsing -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <!-- jsPDF for PDF generation -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <!-- html2canvas to convert HTML to image for PDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <!-- Lucide Icons for a modern, futuristic feel -->
-    <script src="https://cdn.jsdelivr.net/npm/lucide-dynamic@latest/dist/lucide.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts for a modern, clean look -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         /*
-         * --- Custom Styles for Dream11 Predictor ---
-         * This section enhances the Tailwind CSS with a modern, futuristic theme,
-         * including a vibrant color palette, subtle animations, and improved
-         * responsiveness and UI elements.
+         * --- Custom Styles for Cosmic Chatbot AI ---
+         * This section defines the AMOLED black and galactic/cosmic theme,
+         * ensuring a stunning and user-friendly experience across devices.
          */
         
         /* Basic font and transition settings for the whole page */
+        html, body {
+            height: 100%; /* Ensure full viewport height */
+            width: 100%; /* Ensure full viewport width */
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Prevent body scrollbars, main content will scroll */
+        }
+
         body {
             font-family: 'Inter', sans-serif;
             transition: background-color 0.4s ease, color 0.4s ease;
+            display: flex;
+            flex-direction: column;
+            color: var(--text-color-dark); /* Default to dark mode text color */
         }
 
-        /* Defining a vibrant color palette using CSS variables */
+        /* Defining a vibrant, cosmic color palette using CSS variables */
         :root {
-            /* Light mode colors */
-            --bg-color-light: #f3f4f6;
+            /* Dark mode (default) colors for AMOLED black and cosmic theme */
+            --bg-color-dark: #000000; /* Pure AMOLED black */
+            --card-bg-dark: #1a0f2b; /* Deep violet/blue for cards/chat bubbles */
+            --text-color-dark: #e0e7ff; /* Light blue-white for main text */
+            --border-color-dark: #372a4d; /* Subtle dark border */
+            --input-bg-dark: #0d0714; /* Even darker for input field */
+            --header-footer-bg-dark: #08040c; /* Almost pure black for header/footer */
+            
+            /* Light mode colors (if toggled, for contrast) */
+            --bg-color-light: #f0f4f8;
             --card-bg-light: #ffffff;
             --text-color-light: #1f2937;
             --border-color-light: #e5e7eb;
+            --input-bg-light: #ffffff;
+            --header-footer-bg-light: #f8fafc;
             
-            /* Dark mode colors */
-            --bg-color-dark: #0a0a0f;
-            --card-bg-dark: #13131a;
-            --text-color-dark: #e5e7eb;
-            --border-color-dark: #374151;
-            
-            /* Accent colors for buttons, highlights, etc. */
-            --accent-primary: #1e88e5; /* A vibrant blue */
-            --accent-secondary: #00e676; /* A lively green */
-            --accent-error: #ef4444; /* A clear red for errors */
+            /* Accent colors for buttons, highlights, etc. (cosmic vibrancy) */
+            --accent-primary: #a78bfa; /* Vibrant purple */
+            --accent-secondary: #0ea5e9; /* Electric blue */
+            --accent-tertiary: #10b981; /* Glowing green for success */
+            --accent-error: #ef4444; /* Clear red for errors */
+
+            /* Gradient for cosmic elements */
+            --cosmic-gradient-1: linear-gradient(135deg, #a78bfa, #0ea5e9);
+            --cosmic-gradient-2: linear-gradient(135deg, #0ea5e9, #a78bfa);
         }
         
         /* Apply colors based on light or dark body class */
@@ -58,28 +74,39 @@
         body.dark {
             background-color: var(--bg-color-dark);
             color: var(--text-color-dark);
+            /* Add a subtle cosmic background pattern */
+            background-image: url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%231a0f2b" fill-opacity="0.2"%3E%3Cpath d="M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm10 10v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm9-21v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm-21 21v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zM0 0h60v60H0z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');
+            background-attachment: fixed;
+            background-size: 60px 60px; /* Adjust size of the pattern */
         }
 
         /* Tailwind overrides for dark mode to ensure consistency */
         body.dark .bg-white { background-color: var(--card-bg-dark); }
-        body.dark .bg-gray-50 { background-color: #1a1a2e; }
+        body.dark .bg-gray-50 { background-color: var(--header-footer-bg-dark); } /* Even darker for header/footer */
         body.dark .border-gray-100 { border-color: var(--border-color-dark); }
-        body.dark .border-gray-200 { border-color: #4b5563; }
-        body.dark .text-gray-800 { color: var(--text-color-dark); }
-        body.dark .text-gray-900 { color: var(--text-color-dark); }
-        body.dark .text-gray-600 { color: #a1a1aa; } /* Gray 400 */
-        body.dark .text-gray-700 { color: #d4d4d8; } /* Gray 300 */
+        body.dark .border-gray-200 { border-color: #2e243f; }
+        body.dark .text-gray-800, body.dark .text-gray-900 { color: var(--text-color-dark); }
+        body.dark .text-gray-600 { color: #a1a1aa; }
+        body.dark .text-gray-700 { color: #c3c3c3; }
         body.dark .bg-gray-200 { background-color: #3f3f46; color: #f4f4f5; }
         body.dark .hover\:bg-gray-300:hover { background-color: #52525b; }
-        body.dark .bg-gray-100 { background-color: #27272a; }
-        body.dark .shadow-2xl { box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.45); }
-        body.dark #chat-history { background-color: #1a1a2e; }
-        body.dark #chat-input { background-color: #27272a; color: var(--text-color-dark); border-color: #4b5563; }
-        body.dark #chat-history::-webkit-scrollbar-track { background: #374151; }
-        body.dark #chat-history::-webkit-scrollbar-thumb { background: #6b7280; }
-        body.dark #chat-history::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
-        body.dark .bg-indigo-50 { background-color: #1a1a2e; }
-        body.dark #error-message { background-color: #fee2e2; color: #b91c1c; }
+        body.dark .bg-gray-100 { background-color: #271a3d; } /* Darker for message bubbles */
+        body.dark .shadow-2xl { box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6); } /* Deeper shadow for AMOLED */
+        
+        /* Specific overrides for chat elements in dark mode */
+        body.dark #chat-history { background-color: transparent; } /* Chat history background is transparent to show body background */
+        body.dark #chat-input { background-color: var(--input-bg-dark); color: var(--text-color-dark); border-color: #372a4d; }
+        body.dark #chat-input::placeholder { color: #8e889a; }
+        body.dark #model-select, body.dark #temperature-select { background-color: var(--input-bg-dark); color: var(--text-color-dark); border-color: #372a4d; }
+        body.dark #model-select option, body.dark #temperature-select option { background-color: var(--input-bg-dark); color: var(--text-color-dark); }
+
+
+        body.dark .bg-violet-600 { background-color: var(--accent-primary); } /* Changed to violet */
+        body.dark .hover\:bg-violet-700:hover { background-color: #8b5cf6; } /* Slightly darker purple on hover */
+        body.dark .focus\:ring-violet-300:focus { box-shadow: 0 0 0 4px rgba(167, 139, 250, 0.4); } /* Changed to violet */
+
+        body.dark .bg-gray-400 { background-color: #4a4e58; } /* Darker gray for disabled states */
+        body.dark .text-gray-400 { color: #9ca3af; } /* Lighter gray for disabled text */
         
         /* Custom styles for glowing effects on buttons and borders */
         .glow-button {
@@ -93,18 +120,78 @@
             transform: translateY(-2px);
         }
         .glow-border {
-            box-shadow: 0 0 10px rgba(30, 136, 229, 0.5); /* Semi-transparent glow */
+            box-shadow: 0 0 10px rgba(167, 139, 250, 0.5); /* Semi-transparent glow with primary accent */
         }
         
+        /* Main chat container styling */
+        .main-chat-container {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1; /* Allow it to grow and fill space */
+            padding: 1rem; /* Reduced horizontal padding on main container */
+            max-width: 100%;
+            overflow: hidden; /* Prevent horizontal scroll */
+            min-height: 100vh; /* Ensure it takes full height on desktop */
+            background-color: rgba(0, 0, 0, 0.4); /* Semi-transparent background for content area */
+            backdrop-filter: blur(8px); /* Subtle blur effect */
+            border-radius: 1.5rem; /* Larger border radius */
+            border: 1px solid rgba(167, 139, 250, 0.2); /* Subtle border with accent color */
+            box-shadow: 0 0 30px rgba(167, 139, 250, 0.3), 0 0 60px rgba(14, 165, 233, 0.15); /* Dual color glow */
+            margin: 1rem auto; /* Add margin for desktop view */
+        }
+
+        body.light .main-chat-container {
+            background-color: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(5px);
+            border: 1px solid var(--border-color-light);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+        }
+
         /* Markdown content styling for better readability */
-        .markdown-content h1, .markdown-content h2, .markdown-content h3 { font-weight: bold; margin-bottom: 0.75em; margin-top: 1.5em; line-height: 1.2; }
+        .markdown-content h1, .markdown-content h2, .markdown-content h3 { font-family: 'Orbitron', sans-serif; font-weight: bold; margin-bottom: 0.75em; margin-top: 1.5em; line-height: 1.2; color: var(--accent-secondary); }
         .markdown-content h1 { font-size: 2.25rem; }
         .markdown-content h2 { font-size: 1.875rem; }
         .markdown-content h3 { font-size: 1.5rem; }
         .markdown-content ul, .markdown-content ol { list-style-position: inside; margin-left: 1.5em; margin-bottom: 1em; }
         .markdown-content li { margin-bottom: 0.5em; }
-        .markdown-content strong { color: var(--accent-secondary); }
-        
+        .markdown-content strong { color: var(--accent-primary); }
+        .markdown-content code {
+            background-color: rgba(167, 139, 250, 0.15); /* Slightly more prominent */
+            color: var(--accent-primary);
+            padding: 0.2em 0.4em;
+            border-radius: 0.3em;
+            font-family: 'Fira Code', 'Monaco', 'Consolas', 'monospace';
+            font-size: 0.9em;
+        }
+        .markdown-content pre {
+            background-color: rgba(0, 0, 0, 0.6); /* Darker for code blocks */
+            border-radius: 0.5rem;
+            padding: 1em;
+            overflow-x: auto;
+            margin-top: 1em;
+            margin-bottom: 1em;
+            position: relative; /* Needed for absolute positioning of copy button */
+            border: 1px solid rgba(167, 139, 250, 0.2); /* Subtle border */
+            box-shadow: 0 0 10px rgba(14, 165, 233, 0.1); /* Subtle glow */
+        }
+        .markdown-content pre code {
+            background-color: transparent;
+            color: #d4d4d8; /* Light grey for code */
+            padding: 0;
+            font-size: 1em;
+        }
+        .markdown-content blockquote {
+            border-left: 4px solid var(--accent-secondary);
+            color: #b0b0b0;
+            padding-left: 1em;
+            margin: 1em 0;
+            font-style: italic;
+            background-color: rgba(14, 165, 233, 0.05); /* Subtle background for blockquote */
+            border-radius: 0.25rem;
+            padding-top: 0.5em;
+            padding-bottom: 0.5em;
+        }
+
         /* Custom styles for dark mode toggle switch */
         .slider {
             background-color: #d1d5db;
@@ -118,7 +205,7 @@
             transition: .4s;
         }
         input:checked + .slider {
-            background-color: var(--accent-primary);
+            background-color: var(--accent-secondary);
         }
         input:checked + .slider:before {
             transform: translateX(24px);
@@ -126,12 +213,9 @@
 
         /* Custom scrollbar for a sleek look */
         #chat-history::-webkit-scrollbar { width: 8px; }
-        #chat-history::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
-        #chat-history::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
-        #chat-history::-webkit-scrollbar-thumb:hover { background: #555; }
-        .dark #chat-history::-webkit-scrollbar-track { background: #374151; }
-        .dark #chat-history::-webkit-scrollbar-thumb { background: #6b7280; }
-        .dark #chat-history::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+        #chat-history::-webkit-scrollbar-track { background: rgba(26, 15, 43, 0.5); border-radius: 4px; } /* Match card-bg-dark with transparency */
+        #chat-history::-webkit-scrollbar-thumb { background: #4a3a6b; border-radius: 4px; } /* Slightly lighter purple */
+        #chat-history::-webkit-scrollbar-thumb:hover { background: #6b5a8c; } /* Even lighter on hover */
         
         /* Modern loading animation */
         .loader-container {
@@ -163,102 +247,7 @@
             }
         }
         
-        /* Floating Chat Popup styles */
-        #chat-popup-container {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            z-index: 50;
-        }
-
-        /* Floating button style with text and icon */
-        #chat-toggle-button {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0.75rem 1.5rem;
-            border-radius: 9999px; /* full rounded */
-            box-shadow: 0 0 10px var(--accent-secondary);
-            background-color: var(--accent-secondary);
-            color: white;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            border: none;
-            animation: pulse-glow 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
-        }
-        #chat-toggle-button:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 15px var(--accent-secondary), 0 0 25px var(--accent-secondary), 0 0 35px var(--accent-secondary);
-        }
-
-        @keyframes pulse-glow {
-            0%, 100% { box-shadow: 0 0 10px var(--accent-secondary); }
-            50% { box-shadow: 0 0 20px var(--accent-secondary), 0 0 30px var(--accent-secondary); }
-        }
-        
-        #chat-popup-window {
-            /* Adjusted for better responsiveness */
-            width: 100%;
-            max-width: 400px;
-            height: 500px;
-            max-height: 80vh;
-            display: flex;
-            flex-direction: column;
-            background-color: var(--card-bg-light);
-            border-radius: 1.5rem; /* 24px */
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            border: 1px solid var(--border-color-light);
-            transition: all 0.3s ease-in-out;
-            transform-origin: bottom right;
-        }
-
-        /* Dark mode specific for the chat popup */
-        body.dark #chat-popup-window {
-            background-color: var(--card-bg-dark);
-            border-color: var(--border-color-dark);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.45);
-        }
-        
-        /* New classes for animation */
-        .chat-hidden {
-            opacity: 0;
-            transform: scale(0.8);
-            visibility: hidden;
-            pointer-events: none;
-        }
-        .chat-visible {
-            opacity: 1;
-            transform: scale(1);
-            visibility: visible;
-            pointer-events: auto;
-        }
-
-        /* Responsive adjustments for the floating chat */
-        @media (max-width: 768px) {
-            #chat-popup-container {
-                /* On small screens, move the button closer to the corner */
-                bottom: 1rem;
-                right: 1rem;
-            }
-            #chat-popup-window {
-                /* On small screens, the popup should be bigger */
-                bottom: 1rem;
-                right: 1rem;
-                width: calc(100vw - 2rem);
-                max-width: none; /* Override max-width for full screen-ish size */
-                height: calc(100vh - 2rem);
-            }
-            /* Hide text on floating button on smaller screens */
-            #chat-toggle-button span {
-                display: none;
-            }
-            #chat-toggle-button {
-                padding: 0.75rem; /* Make the button a square */
-            }
-        }
-        
-        /* New chat message styles */
+        /* Chat message styles */
         .chat-message {
             margin-bottom: 0.75rem; /* 12px */
             padding: 1rem; /* 16px */
@@ -266,31 +255,45 @@
             box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
             word-break: break-word;
             transition: all 0.3s ease;
-            transform: scale(0.95);
+            transform: scale(0.98); /* Slightly smaller initially */
             transform-origin: bottom;
-            max-width: 85%;
+            max-width: 85%; /* Default max-width */
+            line-height: 1.5;
+            position: relative; /* For action buttons */
         }
 
         .chat-message.user {
-            background-color: #e0f2fe; /* Light blue */
-            color: #1e40af; /* Dark blue */
+            background-color: #372a4d; /* Darker violet for user */
+            color: #d1c0ed; /* Lighter purple for user text */
             margin-left: auto;
             border-bottom-right-radius: 0.5rem; /* 8px */
+            border: 1px solid rgba(167, 139, 250, 0.2);
+            box-shadow: 0 0 10px rgba(167, 139, 250, 0.15); /* Enhanced glow */
+            background-image: linear-gradient(135deg, #372a4d, #4d3a6b); /* Subtle gradient */
         }
-        body.dark .chat-message.user {
-            background-color: #1a237e; /* Darker blue */
-            color: #e0e7ff; /* Lighter blue */
-        }
-
         .chat-message.ai {
-            background-color: #f3f4f6; /* Light gray */
-            color: #374151; /* Dark gray */
+            background-color: #1a0f2b; /* Deep violet for AI */
+            color: var(--text-color-dark);
             margin-right: auto;
             border-bottom-left-radius: 0.5rem; /* 8px */
+            border: 1px solid rgba(14, 165, 233, 0.2);
+            box-shadow: 0 0 10px rgba(14, 165, 233, 0.15); /* Enhanced glow */
+            background-image: linear-gradient(135deg, #1a0f2b, #2b1a4d); /* Subtle gradient */
+            padding-bottom: 3.5rem; /* Space for action buttons */
         }
-        body.dark .chat-message.ai {
-            background-color: #2d3748; /* Darker gray */
-            color: #f9fafb; /* Lighter gray */
+        body.light .chat-message.user {
+            background-color: #e0f2fe; /* Light blue */
+            color: #1e40af; /* Dark blue */
+            border: none;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            background-image: none;
+        }
+        body.light .chat-message.ai {
+            background-color: #f3f4f6; /* Light gray */
+            color: #374151; /* Dark gray */
+            border: none;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            background-image: none;
         }
 
         /* Styling for chat attachments */
@@ -300,6 +303,7 @@
             border-radius: 0.75rem;
             margin-top: 0.5rem;
             display: block;
+            border: 1px solid var(--border-color-dark);
         }
         
         /* Styling for the copy message */
@@ -309,7 +313,7 @@
             left: 50%;
             transform: translateX(-50%);
             padding: 0.75rem 1.5rem;
-            background-color: #10b981;
+            background-color: var(--accent-tertiary);
             color: white;
             border-radius: 9999px;
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
@@ -323,154 +327,414 @@
             opacity: 1;
             visibility: visible;
         }
+
+        /* Styles for AI message action buttons (copy, feedback) */
+        .ai-actions {
+            position: absolute;
+            bottom: 0.75rem; /* 12px from bottom */
+            right: 1rem; /* 16px from right */
+            display: flex;
+            gap: 0.5rem;
+            z-index: 10;
+        }
+
+        .ai-actions button {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 0.4rem 0.6rem;
+            border-radius: 9999px;
+            color: #d1d5db;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            transition: all 0.2s ease;
+        }
+        .ai-actions button:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            transform: translateY(-1px);
+        }
+        .ai-actions button.liked {
+            background-color: var(--accent-tertiary);
+            border-color: var(--accent-tertiary);
+            color: white;
+        }
+        .ai-actions button.disliked {
+            background-color: var(--accent-error);
+            border-color: var(--accent-error);
+            color: white;
+        }
+
+        /* Style for the "Copy Code" button within <pre> blocks */
+        .code-copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background-color: rgba(255, 255, 255, 0.15);
+            color: #d1d5db;
+            padding: 0.25rem 0.6rem;
+            border-radius: 0.3rem;
+            font-size: 0.8rem;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            display: flex;
+            align-items: center; /* Corrected typo */
+            gap: 0.25rem;
+            z-index: 20; /* Ensure it's above code content */
+        }
+        .code-copy-btn:hover {
+            background-color: rgba(255, 255, 255, 0.25);
+            color: white;
+        }
+        body.light .code-copy-btn {
+            background-color: rgba(0, 0, 0, 0.08);
+            color: #374151;
+        }
+        body.light .code-copy-btn:hover {
+            background-color: rgba(0, 0, 0, 0.15);
+            color: #1f2937;
+        }
+
+        /* Header specific styles */
+        .header-content {
+            border-bottom: 1px solid var(--border-color-dark);
+            background-color: var(--header-footer-bg-dark);
+            border-radius: 1.25rem 1.25rem 0 0; /* Rounded top corners */
+            padding: 1.5rem; /* Increased padding */
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        body.light .header-content {
+            background-color: var(--header-footer-bg-light);
+            border-bottom: 1px solid var(--border-color-light);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        .header-content h1 {
+            font-family: 'Orbitron', sans-serif; /* Futuristic font for title */
+            color: var(--accent-primary); /* Use accent color for title */
+            text-shadow: 0 0 8px rgba(167, 139, 250, 0.6); /* Subtle text glow */
+        }
+        .header-content p {
+            color: #b0b0b0; /* Lighter gray for subtitle */
+        }
+        .header-content select {
+            background-color: var(--input-bg-dark);
+            border-color: var(--border-color-dark);
+            color: var(--text-color-dark);
+            padding: 0.6rem 0.8rem;
+            border-radius: 0.5rem;
+            appearance: none; /* Remove default arrow */
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='%23a1a1aa' class='w-4 h-4'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19.5 8.25l-7.5 7.5-7.5-7.5' /%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.5rem center;
+            background-size: 1.2em;
+            transition: all 0.2s ease;
+        }
+        .header-content select:focus {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 2px rgba(167, 139, 250, 0.3);
+            outline: none;
+        }
+        body.light .header-content select {
+            background-color: var(--input-bg-light);
+            border-color: var(--border-color-light);
+            color: var(--text-color-light);
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='1.5' stroke='%236b7280' class='w-4 h-4'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19.5 8.25l-7.5 7.5-7.5-7.5' /%3E%3C/svg%3E");
+        }
+
+        /* Input area container styling */
+        .input-area-container {
+            border-top: 1px solid var(--border-color-dark);
+            background-color: var(--header-footer-bg-dark);
+            border-radius: 0 0 1.25rem 1.25rem; /* Rounded bottom corners */
+            padding: 1.5rem; /* Increased padding */
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.3);
+        }
+        body.light .input-area-container {
+            background-color: var(--header-footer-bg-light);
+            border-top: 1px solid var(--border-color-light);
+            box-shadow: 0 -4px 10px rgba(0,0,0,0.05);
+        }
+        #chat-input {
+            padding: 0.8rem 1.2rem; /* More comfortable padding */
+            font-size: 1rem;
+            border-radius: 9999px; /* Fully rounded */
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+        }
+        #chat-input:focus {
+            border-color: var(--accent-primary);
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.2), 0 0 0 2px rgba(167, 139, 250, 0.3);
+        }
+        .input-area-container label[for="chat-file-upload"],
+        .input-area-container #send-chat-btn {
+            width: 3.5rem; /* 56px */
+            height: 3.5rem; /* 56px */
+            font-size: 1.25rem;
+            border-radius: 50%;
+        }
+        .input-area-container label[for="chat-file-upload"] {
+            background-color: #4a3a6b; /* Darker purple for attachment */
+            border: 1px solid rgba(167, 139, 250, 0.3);
+            box-shadow: 0 0 10px rgba(167, 139, 250, 0.2);
+        }
+        .input-area-container label[for="chat-file-upload"]:hover {
+            background-color: #5d4a7e;
+            box-shadow: 0 0 15px rgba(167, 139, 250, 0.4);
+        }
+        body.light .input-area-container label[for="chat-file-upload"] {
+            background-color: #e2e8f0;
+            border: 1px solid #cbd5e1;
+            box-shadow: none;
+            color: #4a5568;
+        }
+        body.light .input-area-container label[for="chat-file-upload"]:hover {
+            background-color: #cfd8e3;
+        }
+
+        /* Attachment preview styling */
+        #chat-attachments-preview-container {
+            padding: 0.5rem;
+            border-radius: 0.75rem;
+            background-color: rgba(26, 15, 43, 0.7); /* Semi-transparent card-bg-dark */
+            border: 1px solid rgba(167, 139, 250, 0.2);
+            box-shadow: inset 0 1px 5px rgba(0,0,0,0.3);
+        }
+        body.light #chat-attachments-preview-container {
+            background-color: #f0f4f8;
+            border: 1px solid #e5e7eb;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+        }
+        #chat-attachments-preview-container .flex {
+            background-color: #372a4d; /* User message color */
+            border: 1px solid rgba(167, 139, 250, 0.3);
+            color: #d1c0ed;
+        }
+        body.light #chat-attachments-preview-container .flex {
+            background-color: #e0f2fe;
+            border: 1px solid #bfdbfe;
+            color: #1e40af;
+        }
+
+        /* Initial message styling */
+        .initial-message {
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+        .initial-message i {
+            color: var(--accent-primary);
+            text-shadow: 0 0 10px rgba(167, 139, 250, 0.5);
+        }
+
+        /* Footer styling */
+        footer {
+            background-color: var(--header-footer-bg-dark);
+            border-top: 1px solid var(--border-color-dark);
+            padding: 1rem;
+            color: #8e889a;
+            font-size: 0.8rem;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
+        }
+        body.light footer {
+            background-color: var(--header-footer-bg-light);
+            border-top: 1px solid var(--border-color-light);
+            color: #6b7280;
+            box-shadow: 0 -2px 5px rgba(0,0,0,0.05);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .main-chat-container {
+                margin: 0; /* No margin on mobile */
+                border-radius: 0; /* No border-radius on mobile for full width/height */
+                min-height: 100vh; /* Still full height */
+                padding: 0.5rem; /* Reduced padding */
+                box-shadow: none; /* No heavy shadow on mobile */
+            }
+            .header-content {
+                flex-direction: column;
+                align-items: center;
+                padding: 1rem; /* Reduced padding */
+                border-radius: 0; /* No rounded corners */
+                box-shadow: none;
+            }
+            .header-content > div {
+                width: 100%;
+                text-align: center;
+            }
+            .header-content .flex {
+                justify-content: center;
+                margin-top: 1rem;
+                flex-wrap: wrap; /* Allow controls to wrap */
+                gap: 0.75rem; /* Space between controls */
+            }
+            .header-content .mb-4 {
+                margin-bottom: 0.75rem;
+            }
+            .header-content h1 {
+                font-size: 2rem; /* Smaller title */
+            }
+            .header-content p {
+                font-size: 0.9rem; /* Smaller subtitle */
+            }
+            .model-selector-group {
+                flex-direction: row; /* Keep label and select inline on mobile */
+                align-items: center;
+                margin-bottom: 0;
+            }
+            .model-selector-group label {
+                margin-bottom: 0;
+                margin-right: 0.5rem;
+            }
+            .input-area-container {
+                padding: 0.75rem; /* Reduced padding */
+                border-radius: 0; /* No rounded corners */
+                box-shadow: none;
+            }
+            #chat-input {
+                min-width: 0;
+                padding: 0.7rem 1rem; /* Adjust input padding */
+                font-size: 0.9rem;
+            }
+            .input-area-container label[for="chat-file-upload"],
+            .input-area-container #send-chat-btn {
+                width: 3rem; /* Smaller buttons */
+                height: 3rem;
+            }
+            .chat-message {
+                max-width: 95%; /* Wider messages on small screens */
+                padding: 0.8rem 1rem; /* Smaller padding */
+                font-size: 0.95rem;
+            }
+            .chat-message.user, .chat-message.ai {
+                border-radius: 1rem; /* Slightly smaller border radius */
+            }
+            .chat-message.user {
+                border-bottom-right-radius: 0.4rem;
+            }
+            .chat-message.ai {
+                border-bottom-left-radius: 0.4rem;
+            }
+            .ai-actions {
+                bottom: 0.5rem;
+                right: 0.5rem;
+                gap: 0.3rem;
+            }
+            .ai-actions button {
+                padding: 0.3rem 0.5rem;
+                font-size: 0.7rem;
+            }
+            .markdown-content h1 { font-size: 1.75rem; }
+            .markdown-content h2 { font-size: 1.5rem; }
+            .markdown-content h3 { font-size: 1.25rem; }
+            footer {
+                padding: 0.75rem;
+                font-size: 0.75rem;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .main-chat-container {
+                max-width: 5xl; /* Max width for desktop */
+                margin-top: 2rem;
+                margin-bottom: 2rem;
+            }
+        }
     </style>
 </head>
 <body class="antialiased dark">
 
-    <!-- Main container with fluid padding for responsiveness -->
-    <div class="container mx-auto p-4 md:p-8 lg:p-12 min-h-screen flex items-center justify-center">
-        <div class="bg-white rounded-3xl shadow-2xl p-6 md:p-10 lg:p-12 border border-gray-100 transition-colors duration-300 w-full max-w-6xl glow-border">
+    <!-- Main container for the full-screen chatbot -->
+    <div class="main-chat-container max-w-4xl mx-auto w-full bg-transparent">
             
-            <!-- Header Section with Dark Mode Toggle -->
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10">
-                <div class="text-left mb-4 md:mb-0">
-                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold text-gray-900 tracking-tight">
-                        Dream11 Predictor ⚡
-                    </h1>
-                    <p class="text-lg md:text-xl text-gray-600 mt-2">
-                        Analyze data and craft your winning team with AI.
-                    </p>
+        <!-- Header Section with Title, Dark Mode Toggle, and Model Selector -->
+        <header class="header-content flex flex-col md:flex-row justify-between items-center px-4 md:px-6 py-4 border-b border-gray-700 dark:border-gray-800 bg-gray-50 dark:bg-gray-800 rounded-t-xl mb-4">
+            <div class="text-center md:text-left mb-4 md:mb-0">
+                <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-gray-50 tracking-tight flex items-center justify-center md:justify-start">
+                    <i data-lucide="sparkles" class="w-8 h-8 md:w-10 md:h-10 text-violet-400 mr-2 animate-pulse"></i>
+                    Cosmic Chat AI
+                </h1>
+                <p class="text-md md:text-lg text-gray-600 dark:text-gray-400 mt-1">
+                    Your intelligent companion across the digital cosmos.
+                </p>
+            </div>
+            <div class="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4 mt-4 md:mt-0">
+                <!-- Model Selection -->
+                <div class="flex items-center model-selector-group">
+                    <label for="model-select" class="mr-2 text-gray-500 text-sm">Model:</label>
+                    <select id="model-select" class="p-2 rounded-md border border-gray-600 dark:bg-gray-900 dark:border-gray-700 dark:text-white text-sm focus:ring-violet-500 focus:border-violet-500" aria-label="Select AI Model">
+                        <option value="gemini-2.5-flash">gemini-2.5-flash</option>
+                        <option value="gemini-2.5-flash-preview-05-20" selected>gemini-2.5-flash-preview-05-20</option>
+                        <option value="gemini-2.5-pro">gemini-2.5-pro</option>
+                    </select>
                 </div>
-                <div class="flex items-center space-x-2 mt-4 md:mt-0">
+
+                <!-- NEW: Creativity Temperature Selection -->
+                <div class="flex items-center model-selector-group">
+                    <label for="temperature-select" class="mr-2 text-gray-500 text-sm">Creativity:</label>
+                    <select id="temperature-select" class="p-2 rounded-md border border-gray-600 dark:bg-gray-900 dark:border-gray-700 dark:text-white text-sm focus:ring-violet-500 focus:border-violet-500" aria-label="Select AI Creativity Temperature">
+                        <option value="0.0" selected>0.0 - Precise</option>
+                        <option value="0.3">0.3 - Factual</option>
+                        <option value="0.5">0.5 - Balanced</option>
+                        <option value="0.7">0.7 - Creative</option>
+                        <option value="0.8">0.8 - Imaginative</option>
+                        <option value="0.9">0.9 - Inventive</option>
+                        <option value="1.0">1.0 - Wild</option>
+                    </select>
+                </div>
+
+                <!-- Dark Mode Toggle -->
+                <div class="flex items-center space-x-2">
                     <span class="text-gray-500 text-sm">Light</span>
-                    <label class="switch relative inline-block w-14 h-8">
+                    <label class="switch relative inline-block w-14 h-8" aria-label="Toggle dark mode">
                         <input type="checkbox" id="dark-mode-toggle" class="opacity-0 w-0 h-0">
                         <span class="slider absolute cursor-pointer top-0 left-0 right-0 bottom-0 rounded-full before:absolute before:content-[''] before:h-6 before:w-6 before:left-1 before:bottom-1 before:rounded-full"></span>
                     </label>
                     <span class="text-gray-500 text-sm">Dark</span>
                 </div>
             </div>
+        </header>
 
-            <!-- Main Content Area with responsive columns -->
-            <div class="flex flex-col gap-8">
-                <!-- Prediction Output -->
-                <div class="flex-1">
-                    
-                    <!-- Upload and Preview Section -->
-                    <div class="bg-gray-50 rounded-2xl p-6 sm:p-8 mb-4 border-2 border-dashed border-gray-200 transition-all duration-300 hover:bg-gray-100">
-                        <label for="image-upload" class="cursor-pointer block">
-                            <div class="flex flex-col items-center justify-center p-4 sm:p-6 text-center">
-                                <i data-lucide="upload-cloud" class="w-12 h-12 sm:w-14 sm:h-14 text-indigo-500 animate-pulse"></i>
-                                <p class="mt-4 text-sm text-gray-600">
-                                    <span class="font-semibold text-indigo-600 hover:text-indigo-700 transition-colors">
-                                        Click to upload
-                                    </span>
-                                    or drag and drop your image(s)
-                                </p>
-                                <p class="text-xs text-gray-500 mt-1">PNG, JPG up to 10MB per image</p>
-                            </div>
-                        </label>
-                        <input type="file" id="image-upload" accept="image/*" class="hidden" multiple>
-                    </div>
-
-                    <div id="preview-container" class="mb-4 hidden transition-opacity duration-300">
-                        <h2 class="text-lg sm:text-xl font-bold mb-4 text-gray-700">Image Preview(s):</h2>
-                        <div id="image-previews" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                            <!-- Image previews will be dynamically added here -->
-                        </div>
-                    </div>
-
-                    <!-- Action and Status Buttons -->
-                    <div class="flex flex-col sm:flex-row gap-4 mb-8">
-                        <button id="analyze-btn" class="flex-1 py-3 px-6 sm:py-4 sm:px-8 rounded-full bg-indigo-600 text-white font-bold shadow-lg hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-300 transition-all duration-300 disabled:bg-indigo-400 disabled:cursor-not-allowed transform hover:scale-105 glow-button" style="--accent-primary: #1e88e5;">
-                            Analyze and Predict
-                        </button>
-                        <button id="clear-btn" class="flex-1 py-3 px-6 sm:py-4 sm:px-8 rounded-full bg-gray-200 text-gray-800 font-bold shadow-lg hover:bg-gray-300 focus:outline-none focus:ring-4 focus:ring-gray-400 transition-all duration-300 transform hover:scale-105">
-                            Clear All
-                        </button>
-                    </div>
-
-                    <!-- AI Response Section -->
-                    <div id="results-container" class="hidden transition-opacity duration-300">
-                        <h2 class="text-xl sm:text-2xl font-bold mb-4 text-gray-700 border-b-2 border-indigo-500 pb-2">AI's Dream11 Prediction:</h2>
-                        <div id="loading-indicator" class="hidden text-center text-gray-500 text-sm py-8">
-                             <!-- Modern loader animation -->
-                             <div class="loader-container">
-                                <div class="loader-dot"></div>
-                                <div class="loader-dot"></div>
-                                <div class="loader-dot"></div>
-                             </div>
-                            <span class="mt-4 block">Analyzing the image(s) and generating the team...</span>
-                        </div>
-                        <div id="error-message" class="hidden bg-red-100 border border-red-400 text-red-700 px-6 py-4 rounded-xl relative shadow-md" role="alert">
-                            <span class="block sm:inline" id="error-text"></span>
-                        </div>
-                        <div id="prediction-output" class="p-6 bg-gray-100 rounded-xl border border-gray-200 text-base shadow-inner markdown-content"></div>
-                        
-                        <!-- New buttons for PDF and Text Export -->
-                        <div id="export-buttons" class="mt-4 flex flex-col sm:flex-row gap-4 hidden">
-                            <button id="save-pdf-btn" class="flex-1 py-3 px-6 sm:py-4 sm:px-8 rounded-full bg-green-500 text-white font-bold shadow-lg hover:bg-green-600 focus:outline-none focus:ring-4 focus:ring-green-300 transition-all duration-300 transform hover:scale-105">
-                                <i data-lucide="file-text" class="w-5 h-5 mr-2 inline-block"></i> Save as PDF
-                            </button>
-                            <button id="share-text-btn" class="flex-1 py-3 px-6 sm:py-4 sm:px-8 rounded-full bg-blue-500 text-white font-bold shadow-lg hover:bg-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all duration-300 transform hover:scale-105">
-                                <i data-lucide="share-2" class="w-5 h-5 mr-2 inline-block"></i> Share as Text
-                            </button>
-                        </div>
-                    </div>
-                </div>
+        <!-- Chat history div with a minimum height and scroll -->
+        <div id="chat-history" class="p-4 overflow-y-auto flex-1 flex flex-col rounded-b-xl border border-gray-700 dark:border-gray-800 bg-black shadow-inner-xl mb-4">
+            <div class="flex flex-col items-center justify-center h-full text-center text-gray-500 dark:text-gray-600 mb-8 initial-message">
+                <i data-lucide="message-circle" class="w-16 h-16 mb-4 text-violet-500"></i>
+                <p class="text-lg font-semibold">Start your cosmic journey by sending a message!</p>
+                <p class="text-sm mt-2">You can ask questions, upload files, or just say hello.</p>
             </div>
         </div>
-    </div>
-    
-    <!-- Floating Chat Popup -->
-    <div id="chat-popup-container">
-        <!-- Floating button to open the chat -->
-        <button id="chat-toggle-button" class="group hidden">
-            <i data-lucide="message-square" class="w-6 h-6 text-white transition-transform duration-300 group-hover:rotate-12"></i>
-            <span class="ml-2">Chat with AI</span>
-        </button>
-
-        <!-- The actual chat popup window -->
-        <div id="chat-popup-window" class="chat-hidden fixed bottom-24 right-4 md:right-8 lg:right-12 flex-col">
-            <!-- Header for the chat popup -->
-            <div class="flex justify-between items-center p-4 border-b border-gray-200 dark:border-gray-700 rounded-t-2xl bg-gray-50 dark:bg-gray-800">
-                <h2 class="text-lg font-bold text-gray-800 dark:text-gray-200">Chat with AI</h2>
-                <button id="chat-close-button" aria-label="Close Chat" class="text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
-                    <i data-lucide="x" class="w-6 h-6"></i>
+        
+        <!-- Chat input section with attachment and send button -->
+        <div class="input-area-container p-2 sm:p-4 border-t border-gray-700 dark:border-gray-800 bg-gray-50 dark:bg-gray-800 rounded-xl mt-auto">
+            <!-- Attachment preview -->
+            <div id="chat-attachments-preview-container" class="mb-2 flex flex-wrap items-center gap-2 hidden">
+                <!-- Attachments previews will be dynamically added here -->
+            </div>
+            <div class="flex gap-2">
+                <input type="text" id="chat-input" class="flex-1 p-3 rounded-full border border-gray-600 focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-colors shadow-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white" placeholder="Ask your cosmic question..." aria-label="Chat input field">
+                <label for="chat-file-upload" class="flex items-center justify-center w-12 h-12 rounded-full bg-gray-700 text-gray-200 shadow-lg hover:bg-gray-600 cursor-pointer transition-all duration-300 flex-shrink-0" aria-label="Attach files">
+                    <i data-lucide="paperclip" class="w-5 h-5"></i>
+                </label>
+                <input type="file" id="chat-file-upload" accept="*" class="hidden" multiple aria-label="File upload input">
+                <button id="send-chat-btn" aria-label="Send Message" class="flex items-center justify-center w-12 h-12 rounded-full bg-violet-600 text-white shadow-lg hover:bg-violet-700 focus:outline-none focus:ring-4 focus:ring-violet-300 transition-all duration-300 disabled:bg-violet-400 disabled:cursor-not-allowed glow-button flex-shrink-0" style="--accent-primary: var(--accent-primary);">
+                    <i data-lucide="send" class="w-5 h-5"></i>
                 </button>
             </div>
-            
-            <!-- Chat history div with a minimum height and scroll -->
-            <div id="chat-history" class="p-4 overflow-y-auto flex-1 flex flex-col">
-                <!-- Chat messages will be appended here -->
-            </div>
-            
-            <!-- Chat input section with attachment and send button -->
-            <div class="p-4 border-t border-gray-200 dark:border-gray-700">
-                <!-- Attachment preview -->
-                <div id="chat-attachments-preview-container" class="mb-2 flex flex-wrap items-center gap-2 hidden">
-                    <!-- Attachments previews will be dynamically added here -->
-                </div>
-                <div class="flex gap-2">
-                    <input type="text" id="chat-input" class="flex-1 p-3 rounded-full border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Ask a follow-up question...">
-                    <label for="chat-image-upload" class="flex items-center justify-center w-12 h-12 rounded-full bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-200 shadow-lg hover:bg-gray-300 dark:hover:bg-gray-600 cursor-pointer transition-all duration-300 flex-shrink-0">
-                        <i data-lucide="paperclip" class="w-5 h-5"></i> <!-- Changed icon to paperclip for general attachment -->
-                    </label>
-                    <input type="file" id="chat-image-upload" accept="image/*, .txt, .pdf, .csv, .json, .xml, .md" class="hidden" multiple>
-                    <button id="send-chat-btn" aria-label="Send Message" class="flex items-center justify-center w-12 h-12 rounded-full bg-indigo-600 text-white shadow-lg hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-300 transition-all duration-300 disabled:bg-indigo-400 disabled:cursor-not-allowed glow-button flex-shrink-0" style="--accent-primary: #1e88e5;">
-                        <i data-lucide="send" class="w-5 h-5"></i>
-                    </button>
-                </div>
-            </div>
         </div>
     </div>
     
+    <!-- Footer Section -->
+    <footer class="text-center text-gray-600 dark:text-gray-500 text-xs py-2 px-4 mt-auto">
+        <p>&copy; 2023 Cosmic Chat AI. All rights reserved.</p>
+        <p class="mt-0.5">Powered by Gemini AI</p>
+    </footer>
+
     <!-- Temporary message for clipboard copy -->
-    <div id="copy-message">Text copied to clipboard!</div>
+    <div id="copy-message" aria-live="polite">Text copied to clipboard!</div>
 
 
     <script type="text/javascript">
-        // JavaScript for handling image upload, API call, and chat functionality
+        // JavaScript for handling chat functionality and API interaction
         
         // This function call is from the Lucide Icon library to replace all `<i>` tags with the corresponding SVG icons
         const createIcons = () => {
@@ -484,40 +748,54 @@
              createIcons();
         });
 
-        const imageUpload = document.getElementById('image-upload');
-        const imagePreviewsContainer = document.getElementById('image-previews'); // Changed to container
-        const previewContainer = document.getElementById('preview-container');
-        const analyzeBtn = document.getElementById('analyze-btn');
-        const clearBtn = document.getElementById('clear-btn');
-        const loadingIndicator = document.getElementById('loading-indicator');
-        const resultsContainer = document.getElementById('results-container');
-        const predictionOutput = document.getElementById('prediction-output');
-        const exportButtons = document.getElementById('export-buttons');
-        const savePdfBtn = document.getElementById('save-pdf-btn');
-        const shareTextBtn = document.getElementById('share-text-btn');
-        const errorContainer = document.getElementById('error-message');
-        const errorText = document.getElementById('error-text');
+        // Chat elements
+        const chatHistoryDiv = document.getElementById('chat-history');
+        const chatInput = document.getElementById('chat-input');
+        const sendChatBtn = document.getElementById('send-chat-btn');
+        const chatFileUpload = document.getElementById('chat-file-upload');
+        const chatAttachmentsPreviewContainer = document.getElementById('chat-attachments-preview-container');
         
         // Dark Mode elements
         const darkModeToggle = document.getElementById('dark-mode-toggle');
         
-        // Chat elements
-        const chatToggleButton = document.getElementById('chat-toggle-button');
-        const chatPopupWindow = document.getElementById('chat-popup-window');
-        const chatCloseButton = document.getElementById('chat-close-button');
-        const chatHistoryDiv = document.getElementById('chat-history');
-        const chatInput = document.getElementById('chat-input');
-        const sendChatBtn = document.getElementById('send-chat-btn');
-        const chatImageUpload = document.getElementById('chat-image-upload');
-        const chatAttachmentsPreviewContainer = document.getElementById('chat-attachments-preview-container'); // Changed to container
-        
+        // Model Selection elements
+        const modelSelect = document.getElementById('model-select');
+        // NEW: Temperature Selection elements
+        const temperatureSelect = document.getElementById('temperature-select');
+
         // Copy message element
         const copyMessage = document.getElementById('copy-message');
 
-        let uploadedMainImages = []; // Array to store {mimeType, data} for main upload
-        let chatAttachments = []; // Array to store {file: File, mimeType: string, data: string} for chat
-        let chatHistory = [];
-        let lastPredictionText = '';
+        let chatAttachments = []; // Array to store {file: File, mimeType: string, data: string, name: string} for chat
+        let chatHistory = []; // Stores the full conversation for context
+
+        // Gemini API Configuration
+        // WARNING: Hardcoding API keys in client-side code is NOT recommended for production environments
+        // as it exposes your key to anyone who inspects your page. For a production-grade app,
+        // you should proxy your API requests through a secure backend server.
+        const GEMINI_API_KEY = "AIzaSyCzx6ReMk8ohPJcCjGwHHzu7SvFccJqAbA"; 
+        
+        // Initialize GEMINI_MODEL from the default selected option in the HTML
+        let GEMINI_MODEL = modelSelect.value; 
+        // NEW: Initialize GEMINI_TEMPERATURE from the default selected option in the HTML
+        let GEMINI_TEMPERATURE = parseFloat(temperatureSelect.value);
+
+        if (GEMINI_API_KEY === "" || !GEMINI_API_KEY) {
+            console.error("API Key is not set. Please replace 'AIzaSyCzx6ReMk8ohPJcCjGwHHzu7SvFccJqAbA' with your actual API key.");
+            // Display a more prominent error if API key is missing
+            const apiKeyError = document.createElement('div');
+            apiKeyError.classList.add('chat-message', 'ai', 'bg-red-800', 'text-red-100', 'border-red-600', 'my-4');
+            apiKeyError.innerHTML = `<span class="font-bold"><i data-lucide="alert-triangle" class="w-4 h-4 mr-1 inline-block"></i> Critical Error:</span> Gemini API Key is missing or invalid. Please check the 'GEMINI_API_KEY' variable in the script. Chat functionality is disabled.`;
+            chatHistoryDiv.insertBefore(apiKeyError, chatHistoryDiv.firstChild);
+            chatHistoryDiv.scrollTop = 0; // Show error at top
+            createIcons();
+
+            sendChatBtn.disabled = true;
+            chatInput.disabled = true;
+            chatFileUpload.disabled = true;
+            modelSelect.disabled = true; // Disable model selection if API key is bad
+            temperatureSelect.disabled = true; // NEW: Disable temperature selection
+        }
 
         // Dark Mode Initialization and Listener
         // Set dark mode as default if not already set in local storage
@@ -544,6 +822,27 @@
             }
         });
 
+        // Event listener for model selection change
+        modelSelect.addEventListener('change', (event) => {
+            GEMINI_MODEL = event.target.value;
+            console.log(`Gemini model changed to: ${GEMINI_MODEL}`);
+            // Optionally, clear chat history when model changes to avoid context issues
+            // chatHistory = [];
+            // chatHistoryDiv.innerHTML = `<div class="flex flex-col items-center justify-center h-full text-center text-gray-500 dark:text-gray-600 mb-8 initial-message">
+            //     <i data-lucide="message-circle" class="w-16 h-16 mb-4 text-violet-500"></i>
+            //     <p class="text-lg font-semibold">Chat history cleared. Start fresh with ${GEMINI_MODEL}!</p>
+            //     <p class="text-sm mt-2">You can ask questions, upload files, or just say hello.</p>
+            // </div>`;
+            // createIcons();
+        });
+
+        // NEW: Event listener for temperature selection change
+        temperatureSelect.addEventListener('change', (event) => {
+            GEMINI_TEMPERATURE = parseFloat(event.target.value);
+            console.log(`Gemini creativity temperature changed to: ${GEMINI_TEMPERATURE}`);
+        });
+
+
         // Function to convert a file to a Base64 string and return its MIME type and data
         const fileToBase64 = (file) => {
             return new Promise((resolve, reject) => {
@@ -561,20 +860,51 @@
         function getFileIcon(mimeType) {
             if (mimeType.startsWith('image/')) return 'image';
             if (mimeType === 'application/pdf') return 'file-text';
-            if (mimeType.includes('text/')) return 'file-text';
-            if (mimeType.includes('csv') || mimeType.includes('excel')) return 'file-spreadsheet';
-            if (mimeType.includes('json') || mimeType.includes('xml')) return 'file-code';
-            return 'file';
+            if (mimeType.includes('text/plain') || mimeType.includes('text/markdown')) return 'file-text';
+            if (mimeType.includes('csv') || mimeType.includes('excel') || mimeType.includes('spreadsheet')) return 'file-spreadsheet';
+            if (mimeType.includes('json') || mimeType.includes('xml') || mimeType.includes('code')) return 'file-code';
+            if (mimeType.includes('audio/')) return 'file-audio';
+            if (mimeType.includes('video/')) return 'file-video';
+            if (mimeType.includes('zip') || mimeType.includes('rar') || mimeType.includes('tar')) return 'file-archive';
+            return 'file'; // Generic file icon
         }
 
-        // Function to display an error message
+        // Function to display an error message (for critical errors)
         function showError(message) {
-            errorText.textContent = message;
-            errorContainer.classList.remove('hidden');
+            const errorDiv = document.createElement('div');
+            errorDiv.classList.add('chat-message', 'ai', 'bg-red-800', 'text-red-100', 'border-red-600');
+            errorDiv.innerHTML = `<span class="font-bold"><i data-lucide="alert-triangle" class="w-4 h-4 mr-1 inline-block"></i> Error:</span> ${message}`;
+            chatHistoryDiv.appendChild(errorDiv);
+            chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
+            createIcons(); // Ensure error icon is rendered
+        }
+
+        // Helper to copy text to clipboard
+        function copyToClipboard(text, element) {
+            navigator.clipboard.writeText(text).then(() => {
+                showCopyMessage();
+                if (element) {
+                    const originalText = element.innerHTML;
+                    element.innerHTML = `<i data-lucide="check" class="w-4 h-4"></i> Copied!`;
+                    createIcons();
+                    setTimeout(() => {
+                        element.innerHTML = originalText;
+                        createIcons();
+                    }, 2000);
+                }
+            }).catch(err => {
+                console.error('Failed to copy text: ', err);
+            });
         }
         
         // Function to append a message to the chat history
-        function appendChatMessage(role, text, attachments = []) { // attachments is now an array of {mimeType, data, name}
+        function appendChatMessage(role, text, attachments = [], messageId = null) {
+            // Remove the initial prompt if it exists
+            const initialPromptDiv = chatHistoryDiv.querySelector('.initial-message');
+            if (initialPromptDiv) {
+                initialPromptDiv.remove();
+            }
+
             const messageDiv = document.createElement('div');
             messageDiv.classList.add('chat-message', role);
             
@@ -590,8 +920,8 @@
                         } else {
                             // For non-image files, display an icon and file name
                             contentHTML += `
-                                <div class="flex items-center space-x-1 p-2 bg-gray-100 dark:bg-gray-600 rounded-md text-sm">
-                                    <i data-lucide="${getFileIcon(attachment.mimeType)}" class="w-4 h-4 flex-shrink-0"></i>
+                                <div class="flex items-center space-x-1 p-2 bg-gray-600 dark:bg-gray-700 rounded-md text-sm">
+                                    <i data-lucide="${getFileIcon(attachment.mimeType)}" class="w-4 h-4 flex-shrink-0 text-gray-300"></i>
                                     <span class="truncate max-w-[120px]">${attachment.name || 'File'}</span>
                                 </div>
                             `;
@@ -599,8 +929,24 @@
                     });
                     contentHTML += `</div>`;
                 }
-            } else { // AI message
-                contentHTML = marked.parse(text);
+            } else { // AI message (as a "card")
+                const parsedMarkdown = marked.parse(text);
+                contentHTML = `
+                    <div class="markdown-content">
+                        ${parsedMarkdown}
+                    </div>
+                    <div class="ai-actions mt-2">
+                        <button class="copy-ai-response-btn" aria-label="Copy AI response">
+                            <i data-lucide="copy" class="w-4 h-4"></i> Copy
+                        </button>
+                        <button class="feedback-btn like-btn" data-message-id="${messageId}" data-rating="like" aria-label="Like this response">
+                            <i data-lucide="thumbs-up" class="w-4 h-4"></i>
+                        </button>
+                        <button class="feedback-btn dislike-btn" data-message-id="${messageId}" data-rating="dislike" aria-label="Dislike this response">
+                            <i data-lucide="thumbs-down" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                `;
             }
             
             messageDiv.innerHTML = contentHTML;
@@ -615,119 +961,57 @@
             
             // Call createIcons() after adding new content to the chat history
             createIcons();
-        }
 
-        // Event listener for main image upload input
-        imageUpload.addEventListener('change', async (event) => {
-            const files = Array.from(event.target.files);
-            if (files.length > 0) {
-                uploadedMainImages = []; // Reset array
-                imagePreviewsContainer.innerHTML = ''; // Clear existing previews
-                previewContainer.classList.remove('hidden');
-                
-                // Process each file
-                for (const file of files) {
-                    try {
-                        const { mimeType, data } = await fileToBase64(file);
-                        uploadedMainImages.push({ mimeType, data });
-
-                        // Create and append image preview
-                        const img = document.createElement('img');
-                        img.src = URL.createObjectURL(file);
-                        img.alt = 'Image Preview';
-                        img.classList.add('w-full', 'max-h-48', 'object-contain', 'rounded-xl', 'shadow-lg', 'border', 'border-gray-200');
-                        imagePreviewsContainer.appendChild(img);
-
-                    } catch (error) {
-                        showError(`Failed to read file ${file.name}.`);
-                        console.error('File read error:', error);
-                    }
+            // Add event listeners for new AI message actions
+            if (role === 'ai') {
+                const copyBtn = messageDiv.querySelector('.copy-ai-response-btn');
+                if (copyBtn) {
+                    copyBtn.addEventListener('click', () => copyToClipboard(text, copyBtn));
                 }
-                
-                analyzeBtn.disabled = uploadedMainImages.length === 0;
-                resultsContainer.classList.add('hidden'); // Hide previous results
-                exportButtons.classList.add('hidden'); // Hide export buttons
-                errorContainer.classList.add('hidden'); // Hide any previous errors
-                chatHistory = []; // Clear chat history
-                chatHistoryDiv.innerHTML = '';
-                chatToggleButton.classList.add('hidden'); // Hide the chat button on new upload
-                chatPopupWindow.classList.add('chat-hidden'); // Hide the chat popup
-            } else {
-                previewContainer.classList.add('hidden');
-                analyzeBtn.disabled = true;
-                uploadedMainImages = [];
-            }
-        });
-        
-        // Event listener for the Analyze button
-        analyzeBtn.addEventListener('click', async () => {
-            if (uploadedMainImages.length === 0) {
-                showError('Please upload at least one image first.');
-                return;
-            }
-            
-            // Show loading state
-            loadingIndicator.classList.remove('hidden');
-            analyzeBtn.disabled = true;
-            resultsContainer.classList.remove('hidden');
-            predictionOutput.innerHTML = '';
-            exportButtons.classList.add('hidden');
-            errorContainer.classList.add('hidden');
-            
-            chatToggleButton.classList.add('hidden'); // Hide the chat button during analysis
-            chatPopupWindow.classList.add('chat-hidden'); // Hide the chat popup
 
-            const initialPrompt = "Act as a professional sports analyst for the fantasy sports platform Dream11. You are given a screenshot(s) containing information about an upcoming cricket match. Analyze all the text and images within the screenshot(s) to find key details such as player form, team news, pitch conditions, and recent performances. Based on your thorough analysis, provide the best possible Dream11 team, including a captain and vice-captain. Your output should be a single, well-structured text block that first lists the suggested team by player role (Wicket-keeper, Batsmen, All-rounders, Bowlers) and then provides a concise, point-form analysis explaining your choices. The analysis should be grounded in the data you extracted from the image. Use clear headings for each section (e.g., ## Team Analysis) and bullet points for lists (e.g., - Player Name).";
+                messageDiv.querySelectorAll('.feedback-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const targetBtn = e.currentTarget;
+                        const rating = targetBtn.dataset.rating;
+                        const messageId = targetBtn.dataset.messageId;
 
-            try {
-                // Build the user parts for the initial image upload
-                const userParts = [{ text: initialPrompt }];
-                uploadedMainImages.forEach(img => {
-                    userParts.push({
-                        inlineData: {
-                            mimeType: img.mimeType,
-                            data: img.data
-                        }
+                        // Toggle active state
+                        targetBtn.classList.toggle(`${rating}d`);
+                        
+                        // Ensure only one feedback button is active at a time
+                        messageDiv.querySelectorAll('.feedback-btn').forEach(otherBtn => {
+                            if (otherBtn !== targetBtn) {
+                                otherBtn.classList.remove('liked', 'disliked');
+                            }
+                        });
+
+                        // For a real app, you'd send this feedback to a backend:
+                        console.log(`Feedback for message ${messageId}: ${rating}`);
+                        // sendFeedback(messageId, rating);
                     });
                 });
-                
-                const payload = {
-                    contents: [
-                        { role: "user", parts: userParts }
-                    ],
-                };
-                
-                const responseText = await callGeminiAPI(payload);
-                
-                // Store the raw text for sharing
-                lastPredictionText = responseText;
 
-                // Render the AI response text using Marked.js for display
-                predictionOutput.innerHTML = marked.parse(responseText);
-                
-                // Store the full, correctly formatted API history
-                chatHistory = [
-                    { role: 'user', parts: userParts },
-                    { role: 'model', parts: [{ text: responseText }] }
-                ];
-                
-                // After analysis, show the chat and export buttons
-                chatToggleButton.classList.remove('hidden');
-                exportButtons.classList.remove('hidden');
-                appendChatMessage('ai', responseText);
-                chatInput.focus();
+                // Add "Copy Code" buttons to pre blocks
+                messageDiv.querySelectorAll('.markdown-content pre').forEach((preBlock) => {
+                    const codeBlock = preBlock.querySelector('code');
+                    if (codeBlock) {
+                        const copyCodeBtn = document.createElement('button');
+                        copyCodeBtn.classList.add('code-copy-btn');
+                        copyCodeBtn.innerHTML = `<i data-lucide="copy" class="w-4 h-4"></i> Copy Code`;
+                        copyCodeBtn.setAttribute('aria-label', 'Copy code to clipboard');
+                        preBlock.appendChild(copyCodeBtn);
+                        createIcons(); // Re-render icons after adding button
 
-            } catch (error) {
-                console.error('Initial API call failed:', error);
-                showError(`An error occurred: ${error.message}`);
-            } finally {
-                loadingIndicator.classList.add('hidden');
-                analyzeBtn.disabled = false;
+                        copyCodeBtn.addEventListener('click', () => {
+                            copyToClipboard(codeBlock.textContent, copyCodeBtn);
+                        });
+                    }
+                });
             }
-        });
-        
-        // Event listener for chat image/file upload
-        chatImageUpload.addEventListener('change', async (event) => {
+        }
+
+        // Event listener for chat file upload input
+        chatFileUpload.addEventListener('change', async (event) => {
             const files = Array.from(event.target.files);
             if (files.length > 0) {
                 for (const file of files) {
@@ -751,20 +1035,20 @@
                 chatAttachmentsPreviewContainer.classList.remove('hidden');
                 chatAttachments.forEach((attachment, index) => {
                     const attachmentDiv = document.createElement('div');
-                    attachmentDiv.classList.add('flex', 'items-center', 'gap-1', 'p-2', 'rounded-md', 'bg-gray-100', 'dark:bg-gray-700', 'text-gray-800', 'dark:text-gray-200', 'text-sm');
+                    attachmentDiv.classList.add('flex', 'items-center', 'gap-1', 'p-2', 'rounded-md', 'bg-gray-700', 'text-gray-200', 'text-sm', 'border', 'border-gray-600');
                     attachmentDiv.dataset.index = index;
 
                     let previewContent = '';
                     if (attachment.mimeType.startsWith('image/')) {
                         previewContent = `<img src="data:${attachment.mimeType};base64,${attachment.data}" alt="${attachment.name}" class="w-10 h-10 object-cover rounded-md">`;
                     } else {
-                        previewContent = `<i data-lucide="${getFileIcon(attachment.mimeType)}" class="w-5 h-5 flex-shrink-0"></i>`;
+                        previewContent = `<i data-lucide="${getFileIcon(attachment.mimeType)}" class="w-5 h-5 flex-shrink-0 text-gray-300"></i>`;
                     }
 
                     attachmentDiv.innerHTML = `
                         ${previewContent}
                         <span class="truncate max-w-[100px]">${attachment.name}</span>
-                        <button class="remove-attachment-btn text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 ml-1">
+                        <button class="remove-attachment-btn text-gray-400 hover:text-white transition-colors p-1 rounded-full hover:bg-gray-600 ml-1" aria-label="Remove ${attachment.name}">
                             <i data-lucide="x" class="w-4 h-4"></i>
                         </button>
                     `;
@@ -780,15 +1064,19 @@
         chatAttachmentsPreviewContainer.addEventListener('click', (event) => {
             if (event.target.closest('.remove-attachment-btn')) {
                 const attachmentDiv = event.target.closest('[data-index]');
-                const index = parseInt(attachmentDiv.dataset.index);
-                chatAttachments.splice(index, 1); // Remove from array
-                displayChatAttachments(); // Re-render preview
-                chatInput.focus();
+                if (attachmentDiv) {
+                    const index = parseInt(attachmentDiv.dataset.index);
+                    chatAttachments.splice(index, 1); // Remove from array
+                    displayChatAttachments(); // Re-render preview
+                    chatInput.focus();
+                }
             }
         });
 
         // Event listener for sending chat messages
         sendChatBtn.addEventListener('click', async () => {
+            if (sendChatBtn.disabled) return; // Prevent double clicks during processing
+
             const userMessage = chatInput.value.trim();
             if (!userMessage && chatAttachments.length === 0) {
                 return;
@@ -799,7 +1087,8 @@
             if (userMessage) {
                 userParts.push({ text: userMessage });
             }
-            chatAttachments.forEach(attachment => {
+            const currentAttachments = [...chatAttachments]; // Capture current attachments
+            currentAttachments.forEach(attachment => {
                 userParts.push({
                     inlineData: {
                         mimeType: attachment.mimeType,
@@ -810,27 +1099,31 @@
 
             // Append user message and attachments to chat history and UI
             chatHistory.push({ role: 'user', parts: userParts });
-            appendChatMessage('user', userMessage, chatAttachments);
+            appendChatMessage('user', userMessage, currentAttachments); // Pass captured attachments
             
             // Clear input and attachment after sending
             chatInput.value = '';
             chatAttachments = [];
-            chatImageUpload.value = ''; // Clear file input
+            chatFileUpload.value = ''; // Clear file input
             displayChatAttachments(); // Clear attachment previews
             
             sendChatBtn.disabled = true;
+            chatInput.disabled = true;
+            chatFileUpload.disabled = true;
+            modelSelect.disabled = true; // Disable model selection during API call
+            temperatureSelect.disabled = true; // NEW: Disable temperature selection during API call
             
             // Show loading indicator
             const loadingMessage = document.createElement('div');
             loadingMessage.id = 'chat-loading';
-            loadingMessage.classList.add('p-4', 'text-center', 'text-gray-500', 'text-sm');
+            loadingMessage.classList.add('chat-message', 'ai', 'flex', 'items-center', 'space-x-2');
             loadingMessage.innerHTML = `
-                <div class="loader-container h-8">
-                    <div class="loader-dot bg-gray-500"></div>
-                    <div class="loader-dot bg-gray-500"></div>
-                    <div class="loader-dot bg-gray-500"></div>
+                <div class="loader-container h-6 w-16">
+                    <div class="loader-dot bg-violet-400"></div>
+                    <div class="loader-dot bg-violet-400"></div>
+                    <div class="loader-dot bg-violet-400"></div>
                 </div>
-                <span class="mt-2 block">AI is typing...</span>
+                <span class="text-gray-400 dark:text-gray-300">AI is thinking...</span>
             `;
             chatHistoryDiv.appendChild(loadingMessage);
             chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
@@ -845,13 +1138,18 @@
                 
                 // Append AI response to chat history and UI
                 chatHistory.push({ role: 'model', parts: [{ text: responseText }] });
-                appendChatMessage('ai', responseText);
+                // Pass a unique ID for the message for feedback (in a real app, this would be from backend)
+                appendChatMessage('ai', responseText, [], `msg-${chatHistory.length}`); 
                 
             } catch (error) {
                 console.error('Chat API call failed:', error);
-                showError(`An error occurred in the chat: ${error.message}`);
+                showError(`Cosmic communication breakdown: ${error.message}`);
             } finally {
                 sendChatBtn.disabled = false;
+                chatInput.disabled = false;
+                chatFileUpload.disabled = false;
+                modelSelect.disabled = false; // Re-enable model selection
+                temperatureSelect.disabled = false; // NEW: Re-enable temperature selection
                 const loadingDiv = document.getElementById('chat-loading');
                 if (loadingDiv) {
                     loadingDiv.remove();
@@ -862,51 +1160,12 @@
         
         // Add event listener for the 'Enter' key on the chat input
         chatInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
+            if (e.key === 'Enter' && !e.shiftKey) { // Allow shift+enter for new line
+                e.preventDefault(); // Prevent default enter behavior (new line in input)
                 sendChatBtn.click();
             }
         });
 
-        // Event listener for the Clear button
-        clearBtn.addEventListener('click', () => {
-            imageUpload.value = ''; // Reset the file input
-            imagePreviewsContainer.innerHTML = ''; // Clear the image previews
-            previewContainer.classList.add('hidden');
-            predictionOutput.innerHTML = ''; // Clear the output text
-            resultsContainer.classList.add('hidden');
-            exportButtons.classList.add('hidden');
-            analyzeBtn.disabled = true;
-            uploadedMainImages = []; // Clear main images
-            errorContainer.classList.add('hidden');
-            errorText.textContent = '';
-            chatToggleButton.classList.add('hidden'); // Hide chat button on clear
-            chatPopupWindow.classList.add('chat-hidden'); // Hide chat popup
-            chatHistory = []; // Clear chat history
-            chatHistoryDiv.innerHTML = '';
-            lastPredictionText = ''; // Clear the last prediction text
-            
-            // Clear chat-specific attachments
-            chatAttachments = [];
-            chatImageUpload.value = '';
-            displayChatAttachments(); // Clear attachment previews
-        });
-
-        // Floating chat popup toggle logic
-        chatToggleButton.addEventListener('click', () => {
-            chatToggleButton.classList.add('hidden');
-            chatPopupWindow.classList.remove('chat-hidden');
-            chatPopupWindow.classList.add('chat-visible');
-            chatInput.focus();
-            // Re-render icons after the popup is made visible
-            setTimeout(createIcons, 50); 
-        });
-
-        chatCloseButton.addEventListener('click', () => {
-            chatToggleButton.classList.remove('hidden');
-            chatPopupWindow.classList.remove('chat-visible');
-            chatPopupWindow.classList.add('chat-hidden');
-        });
-        
         // Function to show a temporary message for clipboard copy
         function showCopyMessage() {
             copyMessage.classList.add('show');
@@ -915,98 +1174,26 @@
             }, 3000);
         }
 
-        // Event listener for Save as PDF button
-        savePdfBtn.addEventListener('click', async () => {
-            if (!window.jspdf || !window.html2canvas) {
-                showError('PDF libraries not loaded. Please try again.');
-                return;
-            }
-
-            const { jsPDF } = window.jspdf;
-            const content = document.getElementById('prediction-output');
-            
-            // Disable buttons during PDF generation
-            savePdfBtn.disabled = true;
-            shareTextBtn.disabled = true;
-
-            try {
-                const canvas = await html2canvas(content, {
-                    scale: 2, // Increase scale for higher quality
-                    useCORS: true,
-                });
-                const imgData = canvas.toDataURL('image/png');
-                const pdf = new jsPDF('p', 'mm', 'a4');
-                const imgProps = pdf.getImageProperties(imgData);
-                const pdfWidth = pdf.internal.pageSize.getWidth();
-                const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-
-                // Check if content fits on one page, otherwise create multiple pages
-                let currentY = 0;
-                const pageHeight = pdf.internal.pageSize.height;
-                const padding = 10; // Padding from page edges
-
-                if (pdfHeight > pageHeight) {
-                    let totalHeight = imgProps.height;
-                    let imgX = 0;
-                    let imgY = 0;
-                    let imgWidth = pdfWidth;
-
-                    while (totalHeight > 0) {
-                        pdf.addImage(imgData, 'PNG', imgX, imgY - currentY, imgWidth, pdfHeight);
-                        currentY += pageHeight;
-                        totalHeight -= pageHeight;
-                        if (totalHeight > 0) {
-                            pdf.addPage();
-                        }
-                    }
-                } else {
-                    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-                }
-                
-                pdf.save('Dream11_Team_Prediction.pdf');
-            } catch (error) {
-                console.error('Error generating PDF:', error);
-                showError('Failed to generate PDF. Please try again.');
-            } finally {
-                // Re-enable buttons
-                savePdfBtn.disabled = false;
-                shareTextBtn.disabled = false;
-            }
-        });
-        
-        // Event listener for Share as Text button
-        shareTextBtn.addEventListener('click', () => {
-            if (lastPredictionText) {
-                const textToCopy = lastPredictionText.trim();
-                
-                // Copy to clipboard
-                const tempTextArea = document.createElement('textarea');
-                tempTextArea.value = textToCopy;
-                document.body.appendChild(tempTextArea);
-                tempTextArea.select();
-                try {
-                    document.execCommand('copy');
-                    showCopyMessage();
-                } catch (err) {
-                    console.error('Failed to copy text:', err);
-                    showError('Failed to copy text. Please copy manually.');
-                }
-                document.body.removeChild(tempTextArea);
-            } else {
-                showError('No team prediction to share yet.');
-            }
-        });
-
-
         // Generic API call function with exponential backoff
         async function callGeminiAPI(payload) {
-            // Replace with your actual API key
-            const apiKey = "AIzaSyCzx6ReMk8ohPJcCjGwHHzu7SvFccJqAbA"; 
-            if (apiKey === "YOUR_GEMINI_API_KEY" || !apiKey) {
-                throw new Error("API Key is not set. Please replace 'YOUR_GEMINI_API_KEY' in the script.");
-            }
+            // Use the currently selected model
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
 
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+            // NEW: Construct the full payload including generationConfig
+            const fullPayload = {
+                ...payload, // This includes the 'contents' (chat history)
+                generationConfig: {
+                    temperature: GEMINI_TEMPERATURE,
+                    // You can add other generation config parameters here if needed, e.g., topP, topK, maxOutputTokens
+                },
+                // safetySettings: [ // Example safety settings, uncomment if needed
+                //     {
+                //         category: "HARM_CATEGORY_HARASSMENT",
+                //         threshold: "BLOCK_MEDIUM_AND_ABOVE"
+                //     },
+                //     // ... other categories
+                // ]
+            };
 
             let response;
             let result;
@@ -1020,7 +1207,7 @@
                     response = await fetch(apiUrl, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
+                        body: JSON.stringify(fullPayload) // Use the fullPayload here
                     });
 
                     if (response.status === 429) { // Too many requests
@@ -1057,6 +1244,10 @@
                 // Return the text content from the response
                 return result.candidates[0].content.parts[0].text;
             } else {
+                // Handle cases where AI might block content or return empty response
+                if (result && result.promptFeedback && result.promptFeedback.blockReason) {
+                    throw new Error(`AI blocked content due to: ${result.promptFeedback.blockReason}. Please rephrase your query.`);
+                }
                 throw new Error('Failed to get a valid response from the AI. No candidates found or content is empty.');
             }
         }
@@ -1064,7 +1255,7 @@
 </body>
 </html>
 
----------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------
 
-take the chat with ai feature from this code and i want to build a separate chatbot website for this where the chat with ai chatbot will be the main subject and focus. clone every feature of chat with ai from this code and implement it there, i want the new website to work exactly as the chat with ai works in this code.
-fix the css of this whole site, make it look attractive, let user upload any file type, i want to deploy it for production but still want to keep the api key hardcoded, make this site production grade, (gemini-2.5-flash, gemini-2.5-flash-preview-05-20, gemini-2.5-pro), make "gemini-2.5-flash-preview-05-20" the default choice, make the  chatbot full screen, make it look in such a way that it's production grade, make it user friendly and mobile responsive, fix the header and footer and scrolling in chat, make the theme amoled black and galactic/cosmic.
+add more creativity/temperature settings/options so it's clear to understand.
+fix the main chat container behavior, it's cutting off parts. make it full screen and do a design overhaul.
