@@ -397,6 +397,19 @@
             background-color: rgba(0, 0, 0, 0.15);
             color: #1f2937;
         }
+
+        /* Styles for voice input button and active state */
+        .voice-input-btn.active {
+            background-color: var(--accent-secondary); /* Electric blue when active */
+            box-shadow: 0 0 15px var(--accent-secondary), 0 0 25px var(--accent-secondary), 0 0 35px var(--accent-secondary);
+            animation: pulse-mic 1.5s infinite ease-in-out;
+        }
+
+        @keyframes pulse-mic {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(14, 165, 233, 0.7); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(14, 165, 233, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(14, 165, 233, 0); }
+        }
     </style>
 </head>
 <body class="antialiased dark">
@@ -431,9 +444,9 @@
                 <div class="flex items-center temperature-selector-group">
                     <label for="temperature-select" class="mr-2 text-gray-500 text-sm">Creativity:</label>
                     <select id="temperature-select" class="p-2 rounded-md border border-gray-600 dark:bg-gray-900 dark:border-gray-700 dark:text-white text-sm focus:ring-violet-500 focus:border-violet-500" aria-label="Select AI creativity temperature">
-                        <option value="0.0">0.0 (Factual)</option>
+                        <option value="0.0" selected>0.0 (Factual)</option>
                         <option value="0.3">0.3</option>
-                        <option value="0.5" selected>0.5 (Default)</option>
+                        <option value="0.5">0.5 (Default)</option>
                         <option value="0.7">0.7</option>
                         <option value="0.8">0.8</option>
                         <option value="0.9">0.9</option>
@@ -474,6 +487,12 @@
                     <i data-lucide="paperclip" class="w-5 h-5"></i>
                 </label>
                 <input type="file" id="chat-file-upload" accept="*" class="hidden" multiple aria-label="File upload input">
+                
+                <!-- NEW: Voice Input Button -->
+                <button id="voice-input-btn" aria-label="Toggle voice input" class="flex items-center justify-center w-12 h-12 rounded-full bg-gray-700 text-gray-200 shadow-lg hover:bg-gray-600 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all duration-300 flex-shrink-0">
+                    <i data-lucide="mic" class="w-5 h-5"></i>
+                </button>
+
                 <button id="send-chat-btn" aria-label="Send Message" class="flex items-center justify-center w-12 h-12 rounded-full bg-violet-600 text-white shadow-lg hover:bg-violet-700 focus:outline-none focus:ring-4 focus:ring-violet-300 transition-all duration-300 disabled:bg-violet-400 disabled:cursor-not-allowed glow-button flex-shrink-0" style="--accent-primary: var(--accent-primary);">
                     <i data-lucide="send" class="w-5 h-5"></i>
                 </button>
@@ -524,6 +543,12 @@
 
         // Copy message element
         const copyMessage = document.getElementById('copy-message');
+
+        // NEW: Voice Input elements
+        const voiceInputBtn = document.getElementById('voice-input-btn');
+        let recognition; // SpeechRecognition object
+        let isListening = false;
+        let finalTranscript = ''; // Stores the accumulated final transcript
 
         let chatAttachments = []; // Array to store {file: File, mimeType: string, data: string, name: string} for chat
         let chatHistory = []; // Stores the full conversation for context
@@ -836,6 +861,11 @@
         sendChatBtn.addEventListener('click', async () => {
             if (sendChatBtn.disabled) return; // Prevent double clicks during processing
 
+            // Stop voice input if active before sending
+            if (isListening) {
+                recognition.stop();
+            }
+
             const userMessage = chatInput.value.trim();
             if (!userMessage && chatAttachments.length === 0) {
                 return;
@@ -871,6 +901,7 @@
             chatFileUpload.disabled = true;
             modelSelect.disabled = true; // Disable model selection during API call
             temperatureSelect.disabled = true; // NEW: Disable temperature selection
+            voiceInputBtn.disabled = true; // Disable voice input during API call
             
             // Show loading indicator
             const loadingMessage = document.createElement('div');
@@ -913,6 +944,7 @@
                 chatFileUpload.disabled = false;
                 modelSelect.disabled = false; // Re-enable model selection
                 temperatureSelect.disabled = false; // NEW: Re-enable temperature selection
+                voiceInputBtn.disabled = false; // Re-enable voice input
                 const loadingDiv = document.getElementById('chat-loading');
                 if (loadingDiv) {
                     loadingDiv.remove();
@@ -998,10 +1030,112 @@
                 throw new Error('Failed to get a valid response from the AI. No candidates found or content is empty.');
             }
         }
+
+        // --- NEW: Voice Typing Functionality ---
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+        if (SpeechRecognition) {
+            recognition = new SpeechRecognition();
+            recognition.continuous = true; // Keep listening
+            recognition.interimResults = true; // Show results as they come in
+            recognition.lang = 'en-US'; // Set default language
+
+            let currentInterimTranscript = ''; // To hold the current interim speech
+
+            recognition.onstart = () => {
+                console.log('Voice recognition started.');
+                isListening = true;
+                voiceInputBtn.classList.add('active');
+                voiceInputBtn.innerHTML = '<i data-lucide="mic-off" class="w-5 h-5"></i>';
+                createIcons();
+                chatInput.placeholder = "Listening... Speak now!";
+                finalTranscript = chatInput.value.trim(); // Preserve existing text
+            };
+
+            recognition.onresult = (event) => {
+                let interimTranscript = '';
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    const transcript = event.results[i][0].transcript;
+                    if (event.results[i].isFinal) {
+                        finalTranscript += transcript + ' ';
+                    } else {
+                        interimTranscript += transcript;
+                    }
+                }
+                // Update chat input with final transcript + current interim
+                chatInput.value = finalTranscript + interimTranscript;
+                chatInput.focus(); // Keep focus on input
+                chatInput.setSelectionRange(chatInput.value.length, chatInput.value.length); // Move cursor to end
+            };
+
+            recognition.onerror = (event) => {
+                console.error('Speech recognition error:', event.error);
+                isListening = false;
+                voiceInputBtn.classList.remove('active');
+                voiceInputBtn.innerHTML = '<i data-lucide="mic" class="w-5 h-5"></i>';
+                createIcons();
+                chatInput.placeholder = "Ask your cosmic question...";
+                if (event.error === 'not-allowed' || event.error === 'permission-denied') {
+                    showError('Microphone permission denied. Please allow microphone access to use voice typing.');
+                } else if (event.error === 'no-speech') {
+                    // Don't show an error for no speech, just stop listening
+                    console.log('No speech detected, recognition stopped.');
+                } else {
+                    showError(`Voice input error: ${event.error}`);
+                }
+            };
+
+            recognition.onend = () => {
+                console.log('Voice recognition ended.');
+                isListening = false;
+                voiceInputBtn.classList.remove('active');
+                voiceInputBtn.innerHTML = '<i data-lucide="mic" class="w-5 h-5"></i>';
+                createIcons();
+                chatInput.placeholder = "Ask your cosmic question...";
+                // Ensure the final transcript is in the input field
+                chatInput.value = finalTranscript.trim();
+            };
+
+            voiceInputBtn.addEventListener('click', () => {
+                if (isListening) {
+                    recognition.stop();
+                } else {
+                    try {
+                        recognition.start();
+                    } catch (e) {
+                        console.error('Error starting speech recognition:', e);
+                        showError('Could not start voice input. Please check microphone access.');
+                    }
+                }
+            });
+
+            // Disable voice input button if API key is missing
+            if (GEMINI_API_KEY === "" || !GEMINI_API_KEY) {
+                voiceInputBtn.disabled = true;
+                voiceInputBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+
+        } else {
+            // SpeechRecognition not supported
+            voiceInputBtn.disabled = true;
+            voiceInputBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            voiceInputBtn.title = 'Voice input not supported by your browser.';
+            console.warn('Web Speech API (SpeechRecognition) not supported in this browser.');
+            // Optionally, show a message to the user
+            // showError('Voice typing is not supported in your browser. Please use Chrome or Edge for this feature.');
+        }
     </script>
 </body>
 </html>
 
 ---------------------------------------------------------------------------------------------------------------
 
-add chatgpt like intelligent voice typing
+i want to edit the above code to add a section to switch between different versions.
+the versions are : 
+
+main version : https://mystic-vision-ai-standalone-chatbot.netlify.app/
+lite version : https://mystic-vision-ai-lite.netlify.app/
+basic version : https://mystic-vision-ai-basic.netlify.app/
+mini version : https://mystic-vision-ai-mini.netlify.app/
+special cosmic version : https://cosmic-chat-ai-simple-ai-chatbot.netlify.app/
+
