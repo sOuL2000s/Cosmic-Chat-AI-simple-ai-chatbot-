@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cosmic Chatbot AI</title>
+    <!-- PWA Manifest Link -->
+    <link rel="manifest" href="/manifest.json">
     <!-- Tailwind CSS CDN for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Marked.js CDN for Markdown parsing -->
@@ -1295,6 +1297,19 @@
             console.warn('Web Speech API (SpeechRecognition) not supported in this browser.');
             // Optionally, show a message to the user
             // showError('Voice typing is not supported in your browser. Please use Chrome or Edge for this feature.');
+        }
+
+        // --- PWA Service Worker Registration ---
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then((registration) => {
+                        console.log('Service Worker registered with scope:', registration.scope);
+                    })
+                    .catch((error) => {
+                        console.error('Service Worker registration failed:', error);
+                    });
+            });
         }
     </script>
 </body>
