@@ -1,13 +1,15 @@
-const CACHE_NAME = 'cosmic-chat-v1';
+const CACHE_NAME = 'cosmic-chat-v2'; // Increment cache version
 const urlsToCache = [
     '/',
     '/index.html',
     '/manifest.json',
     '/star.png', // Your app icon
-    '/star.png', // Your app icon
     'https://cdn.tailwindcss.com',
     'https://cdn.jsdelivr.net/npm/marked/marked.min.js',
     'https://unpkg.com/lucide@latest',
+    // Google Fonts
+    'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&display=swap',
+    'https://fonts.gstatic.com', // For font files themselves
     // Add any other static assets (images, fonts, etc.) that your app uses
 ];
 

@@ -6,6 +6,10 @@
     <title>Cosmic Chatbot AI</title>
     <!-- PWA Manifest Link -->
     <link rel="manifest" href="/manifest.json">
+    <!-- Google Fonts for a futuristic look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <!-- Tailwind CSS CDN for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Marked.js CDN for Markdown parsing -->
@@ -28,6 +32,48 @@
             display: flex;
             flex-direction: column;
             overflow-x: hidden; /* Prevent horizontal scroll caused by sidebar */
+            
+            /* Cosmic Background - Gradient + Starfield */
+            background: radial-gradient(circle at top left, #1a0f2b 0%, #000000 70%),
+                        radial-gradient(circle at bottom right, #0f1a2b 0%, #000000 70%);
+            background-color: #000000; /* Fallback for older browsers */
+            background-size: 200% 200%; /* Make gradients larger to cover */
+            animation: backgroundPan 60s linear infinite; /* Slow pan for background */
+            position: relative; /* For starfield */
+            z-index: 0;
+        }
+
+        /* CSS Starfield Effect */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(2px 2px at 20px 30px, #eee, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 40px 70px, #fff, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 50px 160px, #ddd, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 90px 100px, #fff, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 130px 190px, #eee, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 160px 120px, #ddd, rgba(0,0,0,0));
+            background-repeat: repeat;
+            background-size: 200px 200px;
+            opacity: 0.3;
+            animation: twinkle 10s infinite alternate;
+            z-index: -1; /* Behind content */
+        }
+
+        @keyframes backgroundPan {
+            0% { background-position: 0% 0%; }
+            50% { background-position: 100% 100%; }
+            100% { background-position: 0% 0%; }
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.6; }
         }
 
         /* Defining a vibrant, cosmic color palette using CSS variables */
@@ -49,12 +95,17 @@
             --accent-secondary: #0ea5e9; /* Electric blue */
             --accent-tertiary: #10b981; /* Glowing green for success */
             --accent-error: #ef4444; /* Clear red for errors */
+            --accent-gradient-start: #a78bfa; /* Purple for gradients */
+            --accent-gradient-end: #0ea5e9; /* Blue for gradients */
         }
         
         /* Apply colors based on light or dark body class */
         body.light {
-            background-color: var(--bg-color-light);
+            background: var(--bg-color-light);
             color: var(--text-color-light);
+        }
+        body.light::before {
+            display: none; /* Hide starfield in light mode */
         }
 
         body.dark {
@@ -76,13 +127,22 @@
         body.dark .shadow-2xl { box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6); } /* Deeper shadow for AMOLED */
         
         /* Specific overrides for chat elements in dark mode */
-        body.dark #chat-history { background-color: var(--bg-color-dark); } /* Make chat history full black */
+        body.dark #chat-history { background-color: rgba(0, 0, 0, 0.6); border-color: #372a4d; } /* Make chat history slightly transparent black */
         body.dark #chat-input { background-color: #1a0f2b; color: var(--text-color-dark); border-color: #372a4d; }
         body.dark #chat-input::placeholder { color: #8e889a; }
-        body.dark #model-select, body.dark #temperature-select, body.dark #version-select { background-color: #1a0f2b; color: var(--text-color-dark); border-color: #372a4d; }
+        body.dark #model-select, body.dark #temperature-select, body.dark #version-select { 
+            background-color: #1a0f2b; 
+            color: var(--text-color-dark); 
+            border-color: #372a4d; 
+            appearance: none; /* Remove default arrow */
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23a78bfa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.5rem center;
+            background-size: 1.2em;
+            padding-right: 2.5rem; /* Make space for custom arrow */
+        }
         body.dark #model-select option, body.dark #temperature-select option, body.dark #version-select option { background-color: #1a0f2b; color: var(--text-color-dark); }
         body.dark #sidebar { background-color: #11091e; border-left: 1px solid #372a4d; } /* Sidebar background */
-
 
         body.dark .bg-violet-600 { background-color: var(--accent-primary); } /* Changed to violet */
         body.dark .hover\:bg-violet-700:hover { background-color: #8b5cf6; } /* Slightly darker purple on hover */
@@ -105,9 +165,37 @@
         .glow-border {
             box-shadow: 0 0 10px rgba(167, 139, 250, 0.5); /* Semi-transparent glow with primary accent */
         }
+
+        /* NEW: Icon Glow for SVGs */
+        .icon-glow {
+            filter: drop-shadow(0 0 8px var(--accent-primary)) drop-shadow(0 0 15px rgba(167, 139, 250, 0.4));
+            transition: filter 0.3s ease;
+        }
+
+        /* Header Title Gradient */
+        .cosmic-title {
+            font-family: 'Orbitron', sans-serif;
+            background: linear-gradient(45deg, var(--accent-gradient-start), var(--accent-gradient-end));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent; /* Fallback */
+            text-shadow: 0 0 15px rgba(167, 139, 250, 0.6); /* Subtle text glow */
+        }
+        .cosmic-subtitle {
+            font-family: 'Inter', sans-serif;
+            color: #a1a1aa; /* Lighter gray for subtitle */
+        }
         
         /* Markdown content styling for better readability */
-        .markdown-content h1, .markdown-content h2, .markdown-content h3 { font-weight: bold; margin-bottom: 0.75em; margin-top: 1.5em; line-height: 1.2; color: var(--accent-secondary); }
+        .markdown-content h1, .markdown-content h2, .markdown-content h3 { 
+            font-weight: bold; 
+            margin-bottom: 0.75em; 
+            margin-top: 1.5em; 
+            line-height: 1.2; 
+            color: var(--accent-secondary); 
+            font-family: 'Orbitron', sans-serif; /* Headings use Orbitron */
+        }
         .markdown-content h1 { font-size: 2.25rem; }
         .markdown-content h2 { font-size: 1.875rem; }
         .markdown-content h3 { font-size: 1.5rem; }
@@ -130,6 +218,7 @@
             margin-top: 1em;
             margin-bottom: 1em;
             position: relative; /* Needed for absolute positioning of copy button */
+            border: 1px solid rgba(167, 139, 250, 0.2); /* Subtle border for code blocks */
         }
         .markdown-content pre code {
             background-color: transparent;
@@ -212,24 +301,27 @@
             transform-origin: bottom;
             max-width: 85%;
             line-height: 1.5;
+            position: relative; /* For action buttons */
         }
 
         .chat-message.user {
             background-color: #372a4d; /* Darker violet for user */
             color: #d1c0ed; /* Lighter purple for user text */
             margin-left: auto;
+            border-top-left-radius: 1.5rem;
             border-bottom-right-radius: 0.5rem; /* 8px */
             border: 1px solid rgba(167, 139, 250, 0.2);
-            box-shadow: 0 0 10px rgba(167, 139, 250, 0.1);
+            box-shadow: 0 0 15px rgba(167, 139, 250, 0.15);
         }
         .chat-message.ai {
-            background-color: #1a0f2b; /* Deep violet for AI */
+            background-color: rgba(26, 15, 43, 0.8); /* Deep violet for AI with transparency */
+            backdrop-filter: blur(5px); /* Holographic effect */
             color: var(--text-color-dark);
             margin-right: auto;
+            border-top-right-radius: 1.5rem;
             border-bottom-left-radius: 0.5rem; /* 8px */
             border: 1px solid rgba(14, 165, 233, 0.2);
-            box-shadow: 0 0 10px rgba(14, 165, 233, 0.1);
-            position: relative; /* Needed for action buttons positioning */
+            box-shadow: 0 0 15px rgba(14, 165, 233, 0.15);
             padding-bottom: 3.5rem; /* Space for action buttons */
         }
         body.light .chat-message.user {
@@ -243,6 +335,7 @@
             color: #374151; /* Dark gray */
             border: none;
             box-shadow: none;
+            backdrop-filter: none;
         }
 
         /* Styling for chat attachments */
@@ -294,16 +387,17 @@
             right: 0;
             height: 100%;
             width: 280px; /* Adjust width as needed */
-            background-color: var(--bg-color-dark); /* Use dark theme background */
+            background-color: #11091e; /* Darker background for sidebar */
             z-index: 50;
             transform: translateX(100%); /* Start off-screen */
             transition: transform 0.3s ease-in-out;
             box-shadow: -5px 0 15px rgba(0, 0, 0, 0.5);
-            padding: 1rem;
+            padding: 1.5rem; /* Increased padding */
             display: flex;
             flex-direction: column;
-            gap: 1rem;
+            gap: 1.5rem; /* Increased gap */
             overflow-y: auto; /* Allow scrolling if content is long */
+            border-left: 1px solid #372a4d;
         }
 
         #sidebar.open {
@@ -470,6 +564,18 @@
             70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(14, 165, 233, 0); }
             100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(14, 165, 233, 0); }
         }
+
+        /* Input area gradient */
+        .input-area-container {
+            background: linear-gradient(to top, #11091e, #1a0f2b);
+            border-top: 1px solid #372a4d;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.4);
+        }
+        .header-content {
+            background: linear-gradient(to bottom, #11091e, #1a0f2b);
+            border-bottom: 1px solid #372a4d;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.4);
+        }
     </style>
 </head>
 <body class="antialiased dark">
@@ -479,14 +585,14 @@
 
     <!-- Sidebar -->
     <aside id="sidebar" class="md:hidden">
-        <div class="flex justify-between items-center mb-4">
-            <h2 class="text-xl font-bold text-gray-50">Settings</h2>
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold text-gray-50 font-orbitron">Settings</h2>
             <button id="close-sidebar-btn" class="text-gray-400 hover:text-white p-2 rounded-full hover:bg-gray-700 transition-colors" aria-label="Close sidebar">
                 <i data-lucide="x" class="w-6 h-6"></i>
             </button>
         </div>
         <!-- Mobile Controls Placeholder - Controls will be moved here by JS -->
-        <div id="mobile-controls-placeholder" class="flex flex-col gap-4 sidebar-controls-group">
+        <div id="mobile-controls-placeholder" class="flex flex-col gap-6 sidebar-controls-group">
             <!-- Controls will be dynamically inserted here -->
         </div>
     </aside>
@@ -495,13 +601,14 @@
     <div class="main-chat-container max-w-4xl mx-auto w-full bg-transparent">
             
         <!-- Header Section with Title, Dark Mode Toggle, Model Selector, and Temperature Selector -->
-        <header class="header-content flex flex-col md:flex-row justify-between items-center px-4 md:px-6 py-4 border-b border-gray-700 dark:border-gray-800 bg-gray-50 dark:bg-gray-800 rounded-t-xl mb-4">
+        <header class="header-content flex flex-col md:flex-row justify-between items-center px-4 md:px-6 py-4 rounded-t-xl mb-4">
             <div class="text-center md:text-left mb-4 md:mb-0">
-                <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-gray-50 tracking-tight flex items-center justify-center md:justify-start">
-                    <i data-lucide="sparkles" class="w-8 h-8 md:w-10 md:h-10 text-violet-400 mr-2 animate-pulse"></i>
+                <h1 class="text-3xl md:text-4xl font-extrabold cosmic-title tracking-tight flex items-center justify-center md:justify-start">
+                    <!-- MODIFIED: Removed glow-button, added icon-glow -->
+                    <i data-lucide="sparkles" class="w-8 h-8 md:w-10 md:h-10 text-violet-400 mr-2 animate-pulse icon-glow"></i>
                     Cosmic Chat AI
                 </h1>
-                <p class="text-md md:text-lg text-gray-600 dark:text-gray-400 mt-1">
+                <p class="text-md md:text-lg cosmic-subtitle mt-1">
                     Your intelligent companion across the digital cosmos.
                 </p>
             </div>
@@ -518,7 +625,7 @@
         </header>
 
         <!-- Chat history div with a minimum height and scroll -->
-        <div id="chat-history" class="p-4 overflow-y-auto flex-1 flex flex-col rounded-b-xl border border-gray-700 dark:border-gray-800 bg-black shadow-inner-xl mb-4">
+        <div id="chat-history" class="p-4 overflow-y-auto flex-1 flex flex-col rounded-b-xl border bg-black shadow-inner-xl mb-4">
             <div class="flex flex-col items-center justify-center h-full text-center text-gray-500 dark:text-gray-600 mb-8 initial-message">
                 <i data-lucide="message-circle" class="w-16 h-16 mb-4 text-violet-500"></i>
                 <p class="text-lg font-semibold">Start your cosmic journey by sending a message!</p>
@@ -527,14 +634,14 @@
         </div>
         
         <!-- Chat input section with attachment and send button -->
-        <div class="input-area-container p-2 sm:p-4 border-t border-gray-700 dark:border-gray-800 bg-gray-50 dark:bg-gray-800 rounded-xl mt-auto">
+        <div class="input-area-container p-2 sm:p-4 rounded-xl mt-auto">
             <!-- Attachment preview -->
             <div id="chat-attachments-preview-container" class="mb-2 flex flex-wrap items-center gap-2 hidden">
                 <!-- Attachments previews will be dynamically added here -->
             </div>
             <div class="flex gap-2">
                 <input type="file" id="chat-file-upload" accept="*" class="hidden" multiple aria-label="File upload input">
-                <input type="text" id="chat-input" class="flex-1 p-3 rounded-full border border-gray-600 focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-colors shadow-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white" placeholder="Ask your cosmic question..." aria-label="Chat input field">
+                <input type="text" id="chat-input" class="flex-1 p-3 rounded-full border focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-colors shadow-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white" placeholder="Ask your cosmic question..." aria-label="Chat input field">
                 <label for="chat-file-upload" class="flex items-center justify-center w-12 h-12 rounded-full bg-gray-700 text-gray-200 shadow-lg hover:bg-gray-600 cursor-pointer transition-all duration-300 flex-shrink-0" aria-label="Attach files">
                     <i data-lucide="paperclip" class="w-5 h-5"></i>
                 </label>
@@ -553,7 +660,7 @@
     
     <!-- Footer Section -->
     <footer class="text-center text-gray-600 dark:text-gray-500 text-xs py-2 px-4 mt-auto">
-        <p>&copy; 2023 Cosmic Chat AI. All rights reserved.</p>
+        <p>&copy; 2025 Cosmic Chat AI. All rights reserved.</p>
         <p class="mt-0.5">Powered by Gemini AI</p>
     </footer>
 
@@ -564,8 +671,8 @@
     <template id="hidden-controls-template">
         <!-- Model Selection -->
         <div class="flex items-center model-selector-group">
-            <label for="model-select" class="mr-2 text-gray-500 text-sm">Model:</label>
-            <select id="model-select" class="p-2 rounded-md border border-gray-600 dark:bg-gray-900 dark:border-gray-700 dark:text-white text-sm focus:ring-violet-500 focus:border-violet-500" aria-label="Select AI Model">
+            <label for="model-select" class="mr-2 text-gray-400 text-sm">Model:</label>
+            <select id="model-select" class="p-2 rounded-md border text-sm focus:ring-violet-500 focus:border-violet-500" aria-label="Select AI Model">
                 <option value="gemini-2.5-flash">gemini-2.5-flash</option>
                 <option value="gemini-2.5-flash-preview-05-20" selected>gemini-2.5-flash-preview-05-20</option>
                 <option value="gemini-2.5-pro">gemini-2.5-pro</option>
@@ -574,8 +681,8 @@
 
         <!-- Creativity Temperature Selection -->
         <div class="flex items-center temperature-selector-group">
-            <label for="temperature-select" class="mr-2 text-gray-500 text-sm">Creativity:</label>
-            <select id="temperature-select" class="p-2 rounded-md border border-gray-600 dark:bg-gray-900 dark:border-gray-700 dark:text-white text-sm focus:ring-violet-500 focus:border-violet-500" aria-label="Select AI creativity temperature">
+            <label for="temperature-select" class="mr-2 text-gray-400 text-sm">Creativity:</label>
+            <select id="temperature-select" class="p-2 rounded-md border text-sm focus:ring-violet-500 focus:border-violet-500" aria-label="Select AI creativity temperature">
                 <option value="0.0" selected>0.0 (Factual)</option>
                 <option value="0.3">0.3</option>
                 <option value="0.5">0.5 (Default)</option>
@@ -588,8 +695,8 @@
 
         <!-- Version Selector -->
         <div class="flex items-center version-selector-group">
-            <label for="version-select" class="mr-2 text-gray-500 text-sm">Version:</label>
-            <select id="version-select" class="p-2 rounded-md border border-gray-600 dark:bg-gray-900 dark:border-gray-700 dark:text-white text-sm focus:ring-violet-500 focus:border-violet-500" aria-label="Select Chatbot Version">
+            <label for="version-select" class="mr-2 text-gray-400 text-sm">Version:</label>
+            <select id="version-select" class="p-2 rounded-md border text-sm focus:ring-violet-500 focus:border-violet-500" aria-label="Select Chatbot Version">
                 <option value="https://mystic-vision-ai-standalone-chatbot.netlify.app/">Main Version</option>
                 <option value="https://mystic-vision-ai-lite.netlify.app/">Lite Version</option>
                 <option value="https://mystic-vision-ai-basic.netlify.app/">Basic Version</option>
@@ -600,12 +707,12 @@
 
         <!-- Dark Mode Toggle -->
         <div class="flex items-center space-x-2 dark-mode-toggle-container">
-            <span class="text-gray-500 text-sm">Light</span>
+            <span class="text-gray-400 text-sm">Light</span>
             <label class="switch relative inline-block w-14 h-8" aria-label="Toggle dark mode">
                 <input type="checkbox" id="dark-mode-toggle" class="opacity-0 w-0 h-0">
                 <span class="slider absolute cursor-pointer top-0 left-0 right-0 bottom-0 rounded-full before:absolute before:content-[''] before:h-6 before:w-6 before:left-1 before:bottom-1 before:rounded-full"></span>
             </label>
-            <span class="text-gray-500 text-sm">Dark</span>
+            <span class="text-gray-400 text-sm">Dark</span>
         </div>
     </template>
 
