@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cosmic-chat-v2'; // Increment cache version
+const CACHE_NAME = 'cosmic-chat-v3'; // Increment cache version
 const urlsToCache = [
     '/',
     '/index.html',
