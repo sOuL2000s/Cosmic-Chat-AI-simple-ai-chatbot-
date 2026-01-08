@@ -802,13 +802,6 @@
         // Initialize GEMINI_TEMPERATURE from the default selected option in the HTML
         let GEMINI_TEMPERATURE = parseFloat(temperatureSelect.value);
         
-        // Disable the voice input button if the browser doesn't support the API (This was moved from the bottom)
-        if (!SpeechRecognition) {
-            voiceInputBtn.disabled = true;
-            voiceInputBtn.classList.add('opacity-50', 'cursor-not-allowed');
-            voiceInputBtn.title = 'Voice input not supported by your browser.';
-            console.warn('Web Speech API (SpeechRecognition) not supported in this browser.');
-        }
 
         // Dark Mode Initialization and Listener
         // Set dark mode as default if not already set in local storage
@@ -1364,11 +1357,14 @@
                 }
             });
 
-            // Disable voice input button if API key is missing
-            if (GEMINI_API_KEY === "" || !GEMINI_API_KEY) {
+            // The disabling logic is now redundant if the button starts enabled, 
+            // but for safety, if you keep the disabling logic, it should look like this:
+            /*
+            if (GEMINI_API_KEY === "" || !GEMINI_API_KEY) { // Check removed due to proxy, but keeping context
                 voiceInputBtn.disabled = true;
                 voiceInputBtn.classList.add('opacity-50', 'cursor-not-allowed');
             }
+            */
 
         } else {
             // SpeechRecognition not supported
@@ -1376,8 +1372,6 @@
             voiceInputBtn.classList.add('opacity-50', 'cursor-not-allowed');
             voiceInputBtn.title = 'Voice input not supported by your browser.';
             console.warn('Web Speech API (SpeechRecognition) not supported in this browser.');
-            // Optionally, show a message to the user
-            // showError('Voice typing is not supported in your browser. Please use Chrome or Edge for this feature.');
         }
 
         // --- PWA Service Worker Registration ---
