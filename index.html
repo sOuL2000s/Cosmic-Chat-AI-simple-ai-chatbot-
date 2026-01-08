@@ -801,24 +801,13 @@
         let GEMINI_MODEL = modelSelect.value; 
         // Initialize GEMINI_TEMPERATURE from the default selected option in the HTML
         let GEMINI_TEMPERATURE = parseFloat(temperatureSelect.value);
-
-        if (GEMINI_API_KEY === "" || !GEMINI_API_KEY) {
-            console.error("API Key is not set. Please replace 'AIzaSyCzx6ReMk8ohPJcCjGwHHzu7SvFccJqAbA' with your actual API key.");
-            // Display a more prominent error if API key is missing
-            const apiKeyError = document.createElement('div');
-            apiKeyError.classList.add('chat-message', 'ai', 'bg-red-800', 'text-red-100', 'border-red-600', 'my-4');
-            apiKeyError.innerHTML = `<span class="font-bold"><i data-lucide="alert-triangle" class="w-4 h-4 mr-1 inline-block"></i> Critical Error:</span> Gemini API Key is missing or invalid. Please check the 'GEMINI_API_KEY' variable in the script. Chat functionality is disabled.`;
-            chatHistoryDiv.insertBefore(apiKeyError, chatHistoryDiv.firstChild);
-            chatHistoryDiv.scrollTop = 0; // Show error at top
-            createIcons();
-
-            sendChatBtn.disabled = true;
-            chatInput.disabled = true;
-            chatFileUpload.disabled = true;
-            modelSelect.disabled = true; // Disable model selection if API key is bad
-            temperatureSelect.disabled = true; // Disable temperature selection too
-            versionSelect.disabled = true; // Disable version selection too
-            darkModeToggle.disabled = true; // Disable dark mode toggle
+        
+        // Disable the voice input button if the browser doesn't support the API (This was moved from the bottom)
+        if (!SpeechRecognition) {
+            voiceInputBtn.disabled = true;
+            voiceInputBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            voiceInputBtn.title = 'Voice input not supported by your browser.';
+            console.warn('Web Speech API (SpeechRecognition) not supported in this browser.');
         }
 
         // Dark Mode Initialization and Listener
